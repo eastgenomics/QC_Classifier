@@ -259,6 +259,15 @@ table_cond_formatting_rules:
             - eq: 1350
             - eq: 1800
             - gt: 1800
+    mqc-generalstats-fastqc-percent_duplicates: # TEST FILTER: Percent of reads that are duplicates
+        pass:
+            - lt: 45.0
+        warn:
+            - eq: 45.0
+            - gt: 45.0
+        fail:
+            - eq: 50.0
+            - gt: 50.0
 
     # all_columns:
     #     pass:
