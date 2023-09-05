@@ -187,16 +187,12 @@ def get_status(value, parameters):
             # Check if the string is equal to "true"
             if value == "true":
                 status = "pass"
-                continue
-            else:
-                # print('"The value is not a string "true"')
-                continue
 
         # Iterate through the list of conditions for each possible status: 'gt', 'lt', 'eq', 's_eq'
         for condition in conditions:
 
             # Checking if any of the following conditions exist
-            # Or statements are necessary to prevent any condition with value 
+            # Or statements are necessary to prevent any condition with value
             # 0 to be treated as false 
             if condition.get('gt') or condition.get('gt') == 0:
                 if value > condition.get('gt'):

@@ -50,7 +50,7 @@ for config_field in config_fields:
         record_structure = None
 
         parameters = Classifier.get_unique_parameters(config_field,
-                                                      "CEN_multiqc_config_v2.1.0.yaml")
+                                                      yaml_content)
         value = sample_data.get(headerID)
 
         # If statement to apply an exception to a Unique ID that looks at percentages
