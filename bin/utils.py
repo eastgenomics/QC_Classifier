@@ -1,50 +1,66 @@
-import subprocess
+"""Python version 3.10.12 """
 import json
-from ruamel.yaml import YAML
+import yaml
 
 
-def getHeaderID(unique_id):
-    '''
+def map_header_id(config_field):
+    """
     Important concepts to understand this function:
-        - Unique ID: Any ID found in config.yaml file found in the key called "table_cond_formatting_rules
-        - Header ID: Any ID found inside multiqc_data.json. Sometimes Unique IDs and Header IDs are the same, but they are mostly different.
+        - Config field: Any ID found in config.yaml file found in the key called 
+                     "table_cond_formatting_rules"
+        - Header ID: Any ID found inside multiqc_data.json. Sometimes Config Fileds
+                     and Header IDs are the same, but they are mostly different.
     
     This function gives the Header ID for any give Unique ID, 
     IMPORTANT: file "idUniqueIdRelationship.json" should be included to work.
 
     Input:
-        - Unique ID
+        - Config Field
     Output:
         - Header ID
 
-    '''
-    # Use jq to extract header ID based on the current unique ID
-    cmd = f'jq -r --arg UNIQUE "{unique_id}" \'first(.[] | select(.Unique_ID == $UNIQUE) | .Header_ID)\' idUniqueIdRelationship.json'
-    header_id = subprocess.check_output(cmd, shell=True).decode().strip()
-    return header_id
+    """
+    # First get file from resources/ folder
+    with open("gitRepo/QC_Classifier/resources/idUniqueIdRelationship.json",
+              'r', encoding='UTF-8') as file:
+        config_field_relationship = json.load(file)
+    id_mapping = {item["Unique_ID"]: item["Header_ID"] for item in config_field_relationship}
+    HeaderID = id_mapping.get(config_field)
+
+    return HeaderID
 
 
-def getUniqueParameters(unique_id, yaml_file):
+def read_config(yaml_file):
+    """This function reads any .yaml file in a .json-like structure.
 
-    '''
+    Args:
+        yaml_file (str): filename and relative path of the config.yaml file
+    Output:
+        - yaml_contents (dictionary): contents of config.yaml file
+    """
+    with open(yaml_file, 'r', encoding='UTF-8') as file:
+        yaml_file = yaml.safe_load(file)
+    return yaml_file
+
+def get_unique_parameters(unique_id, yaml_file):
+
+    """
     This function outputs the list of conditions/parameters found in the config.yaml file.
 
     Input:
-        - Unique ID string
-        - "config.yaml" filename string
+        - Config field (str): fields found in table_cond_formatting_rules from the "config.yaml"
+                              file.
+        - Output from read_config('config.yaml') function.
     Output:
-        - parameters' dictionary for given Unique ID
+        - parameters (dictionary): Conditions for the given config field.
 
-    '''
+    """
 
-    with open(yaml_file, 'r') as file:
-        yaml_content = YAML().load(file)
-
-    parameters = yaml_content["table_cond_formatting_rules"].get(unique_id)
+    parameters = yaml_file["table_cond_formatting_rules"].get(unique_id)
     return parameters
 
 
-def getSampleLists(multiqc_data):
+def get_sample_lists(multiqc_data):
     '''
     Creates a structured list of samples used in the MultiQC run
 
@@ -82,16 +98,22 @@ def getSampleLists(multiqc_data):
     
     return sample_lists
 
-def getControlLists(multiqc_data):
-    '''
+def get_control_lists(multiqc_data):
+    """
     Creates a structured list of controls used in the MultiQC run
 
     Input: 
-        multiqc_data
+        multiqc_data (variable which must have gone through json.load())
+            - i.e.: multiqc_data = json.load(open("multiqc_data.json"))
 
     Output: 
-        ([controlSample_snp_all, controlSample_snp_pass], [controlSample_indel_all, controlSample_indel_pass])
-    '''
+        Tuple with sample IDs from the multiQC.json data in 
+        multiqc_happy_indel_data and multiqc_happy_snp_data
+
+    Basic structure of output:
+        ([controlSample_snp_all, controlSample_snp_pass], 
+         [controlSample_indel_all, controlSample_indel_pass])
+    """
 
     # Get all relevant IDs first
     snp_ids = multiqc_data["report_saved_raw_data"]["multiqc_happy_snp_data"].keys()
@@ -99,7 +121,8 @@ def getControlLists(multiqc_data):
 
     return snp_ids, indel_ids
 
-def getSampleData(sample_id, multiqc_data):
+
+def get_sample_data(sample_id, multiqc_data):
     '''
     Given any kind of sample ID, retrieves its data from the multiqc_data.json file (in keys "report_saved_raw_data" and 
     "report_general_stats_data")
@@ -136,9 +159,9 @@ def getSampleData(sample_id, multiqc_data):
 
     return data
 
-def getStatus(value, parameters):
+def get_status(value, parameters):
     '''
-    Function to determine the appropriate status based on given value and parameters.
+    Function to determine pass/warn/fail status based on given value and parameters.
 
     Inputs:
         Value (string or float)
@@ -147,8 +170,8 @@ def getStatus(value, parameters):
     Output:
         Status: string with one of the following options:
                    "unknown", "pass", "warn" or "fail" 
-                Status "unknown should be avoided.
-    '''         
+                Status "unknown" should be avoided.
+    '''
 
     status = "unknown" # Given default status if not classified
 
@@ -158,9 +181,10 @@ def getStatus(value, parameters):
         conditions = parameters.get(possible_status)
 
         # Check if one of the possible status values is a boolean == True
-        if possible_status == True:
-            # If it is a boolean == True, check if value is a string == "true"
-            # *IMPORTANT*, DISCUSS CAVEATS FOR FALSE
+        if isinstance(possible_status, bool) and possible_status is True:
+            # For possible status, check if it is a boolean and the boolean is equal to True
+            # TODO: DISCUSS CAVEATS FOR FALSE
+            # Check if the string is equal to "true"
             if value == "true":
                 status = "pass"
                 continue
@@ -172,7 +196,8 @@ def getStatus(value, parameters):
         for condition in conditions:
 
             # Checking if any of the following conditions exist
-            # Or statements are necessary to prevent any condition with value 0 to be treted as false 
+            # Or statements are necessary to prevent any condition with value 
+            # 0 to be treated as false 
             if condition.get('gt') or condition.get('gt') == 0:
                 if value > condition.get('gt'):
                     #print(f"gt than {condition['gt']}")
@@ -191,6 +216,6 @@ def getStatus(value, parameters):
             if condition.get('s_eq'):
                 if value == condition['s_eq']:
                     #print(f"s_eq to {condition['s_eq']}")
-                    status == possible_status
+                    status = possible_status
 
     return status # Returns the determined status
