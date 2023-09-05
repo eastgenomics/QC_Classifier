@@ -1,6 +1,7 @@
 """Python version 3.10.12 """
 import json
 import yaml
+from pathlib import Path
 
 
 def map_header_id(config_field):
@@ -21,14 +22,16 @@ def map_header_id(config_field):
 
     """
     # First get file from resources/ folder
-    with open("gitRepo/QC_Classifier/resources/idUniqueIdRelationship.json",
+    config_header_filepath = Path(__file__).parent.joinpath('..','resources',
+                                                            'idUniqueIdRelationship.json')
+    print(config_header_filepath)
+    with open(config_header_filepath,
               'r', encoding='UTF-8') as file:
         config_field_relationship = json.load(file)
     id_mapping = {item["Unique_ID"]: item["Header_ID"] for item in config_field_relationship}
-    HeaderID = id_mapping.get(config_field)
+    header_id = id_mapping.get(config_field)
 
-    return HeaderID
-
+    return header_id
 
 def read_config(yaml_file):
     """This function reads any .yaml file in a .json-like structure.
@@ -83,19 +86,15 @@ def get_sample_lists(multiqc_data):
     sample_lists = []
 
     for sample_id in sample_ids:
-        
         record_list = []
-        
         # Treat sample_id as a string that can be found is some IDs found in record IDs
         substring = sample_id
         for item in record_ids:
             if substring in item:
                 # store record IDs in list
                 record_list.append(item)
-        
         # append sample ID with corresponding record IDs as a tupple
         sample_lists.append((sample_id,tuple(record_list)))
-    
     return sample_lists
 
 def get_control_lists(multiqc_data):
@@ -124,8 +123,8 @@ def get_control_lists(multiqc_data):
 
 def get_sample_data(sample_id, multiqc_data):
     '''
-    Given any kind of sample ID, retrieves its data from the multiqc_data.json file (in keys "report_saved_raw_data" and 
-    "report_general_stats_data")
+    Given any kind of sample ID, retrieves its data from the multiqc_data.json file 
+    (in keys "report_saved_raw_data" and "report_general_stats_data")
 
     Input:
         - Sample ID string (string from fuctions getControlLists or getSampleLists)
@@ -141,17 +140,16 @@ def get_sample_data(sample_id, multiqc_data):
 
     # If and elif statements only are applicable when given ids from getControlLists
     if "_INDEL_" in sample_id:
-        data.update(multiqc_data["report_saved_raw_data"]["multiqc_happy_indel_data"].get(sample_id))
+        data.update(multiqc_data["report_saved_raw_data"]
+                                ["multiqc_happy_indel_data"].get(sample_id))
     elif "_SNP_" in sample_id:
         data.update(multiqc_data["report_saved_raw_data"]["multiqc_happy_snp_data"].get(sample_id))
-    
     # Most sample IDs will go through the following else statement.
     else:
         for item in multiqc_data["report_general_stats_data"]:
             general_data = item.get(sample_id)
             if general_data:
                 data.update(general_data)
-        
         for key in raw_data_keys:
             raw_data = multiqc_data["report_saved_raw_data"][key].get(sample_id)
             if raw_data:
@@ -183,7 +181,7 @@ def get_status(value, parameters):
         # Check if one of the possible status values is a boolean == True
         if isinstance(possible_status, bool) and possible_status is True:
             # For possible status, check if it is a boolean and the boolean is equal to True
-            # TODO: DISCUSS CAVEATS FOR FALSE
+            #TODO: DISCUSS CAVEATS FOR FALSE
             # Check if the string is equal to "true"
             if value == "true":
                 status = "pass"
@@ -193,7 +191,7 @@ def get_status(value, parameters):
 
             # Checking if any of the following conditions exist
             # Or statements are necessary to prevent any condition with value
-            # 0 to be treated as false 
+            # 0 to be treated as false
             if condition.get('gt') or condition.get('gt') == 0:
                 if value > condition.get('gt'):
                     #print(f"gt than {condition['gt']}")

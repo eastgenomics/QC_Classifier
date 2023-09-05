@@ -1,6 +1,6 @@
 """
 We have all the functions needed to generate the individual 
-outputs that wee need, all we have to do is join everything together in
+outputs that we need, all we have to do is join everything together in
 a complex dictionary. 
 
 All inputs:
@@ -20,21 +20,29 @@ Future next step of complexity
 
 
 """
+import argparse
 import json
 import bin.utils as Classifier
 
+parser = argparse.ArgumentParser(description='QC Classifier for multiqc data')
+parser.add_argument('data', type=str,
+                    help='filepath to multiqc.json file')
+parser.add_argument('config', type=str,
+                    help='filepath to config.yaml file')
 
+args = parser.parse_args()
 # List of samples
-with open("multiqc_data.json", 'r', encoding='UTF-8') as file:
+MULTIQC_DATA_FILE = args.data
+with open(MULTIQC_DATA_FILE, 'r', encoding='UTF-8') as file:
     multiqc_data = json.load(file)
 sample_lists = Classifier.get_sample_lists(multiqc_data)
 
 # List of config_fields
-YAML_FILE = "CEN_multiqc_config_v2.1.0.yaml"
+YAML_FILE = args.config
 yaml_content = Classifier.read_config(YAML_FILE)
 config_fields = list(yaml_content["table_cond_formatting_rules"].keys())
 
-# Generate a record for each config_field from the YAML file and 
+# Generate a record for each config_field from the YAML file and
 # for each sample from getSampleLists.
 # IMPORTANT: May need to change order of nested for loop to optimise speed output.
 for config_field in config_fields:
@@ -45,9 +53,6 @@ for config_field in config_fields:
         # Script will first look at the sample_id from tuple
         sampleID = sample_list[0]
         sample_data = Classifier.get_sample_data(sampleID, multiqc_data)
-
-        # Creating an empty variable for output .json structure
-        record_structure = None
 
         parameters = Classifier.get_unique_parameters(config_field,
                                                       yaml_content)
