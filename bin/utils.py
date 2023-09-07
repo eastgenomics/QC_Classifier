@@ -1,7 +1,8 @@
 """Python version 3.10.12 """
 import json
-import yaml
 from pathlib import Path
+import pandas
+import yaml
 
 
 def map_header_id(config_field):
@@ -24,7 +25,6 @@ def map_header_id(config_field):
     # First get file from resources/ folder
     config_header_filepath = Path(__file__).parent.joinpath('..','resources',
                                                             'idUniqueIdRelationship.json')
-    print(config_header_filepath)
     with open(config_header_filepath,
               'r', encoding='UTF-8') as file:
         config_field_relationship = json.load(file)
@@ -32,6 +32,7 @@ def map_header_id(config_field):
     header_id = id_mapping.get(config_field)
 
     return header_id
+
 
 def read_config(yaml_file):
     """This function reads any .yaml file in a .json-like structure.
@@ -44,6 +45,7 @@ def read_config(yaml_file):
     with open(yaml_file, 'r', encoding='UTF-8') as file:
         yaml_file = yaml.safe_load(file)
     return yaml_file
+
 
 def get_unique_parameters(unique_id, yaml_file):
 
@@ -63,13 +65,14 @@ def get_unique_parameters(unique_id, yaml_file):
     return parameters
 
 
-def get_sample_lists(multiqc_data):
+def get_sample_lists(multiqc_data, csv_filepath):
     '''
     Creates a structured list of samples used in the MultiQC run
 
     Input: 
         multiqc_data (variable which must have gone through json.load())
             - i.e.: multiqc_data = json.load(open("multiqc_data.json"))
+        csv_filepath (string) filepath to samplesheet
 
     Output: 
         List of tuples with sample IDs for each sample patient
@@ -78,8 +81,12 @@ def get_sample_lists(multiqc_data):
         (sample_id, (sample_id_L1_R1, sample_id_L1_R2, sample_id_L2_R1, sample_id_L2_R2))
     '''
 
-    # Get all IDs first
-    sample_ids = multiqc_data["report_data_sources"]["VerifyBAMID"]["all_sections"].keys()
+    # Get all IDs from sample sheet
+    with open(csv_filepath, 'r', encoding='UTF-8') as file:
+        sample_sheet = pandas.read_csv(file, skiprows=20)
+    sample_ids = list(sample_sheet['Sample_ID'])
+
+    # Getting all reads sample IDs from Multiqc_data.json
     record_ids = multiqc_data["report_data_sources"]["FastQC"]["all_sections"].keys()
 
     # Final output of function
@@ -96,6 +103,7 @@ def get_sample_lists(multiqc_data):
         # append sample ID with corresponding record IDs as a tupple
         sample_lists.append((sample_id,tuple(record_list)))
     return sample_lists
+
 
 def get_control_lists(multiqc_data):
     """
@@ -157,6 +165,7 @@ def get_sample_data(sample_id, multiqc_data):
 
     return data
 
+
 def get_status(value, parameters):
     '''
     Function to determine pass/warn/fail status based on given value and parameters.
@@ -181,7 +190,6 @@ def get_status(value, parameters):
         # Check if one of the possible status values is a boolean == True
         if isinstance(possible_status, bool) and possible_status is True:
             # For possible status, check if it is a boolean and the boolean is equal to True
-            #TODO: DISCUSS CAVEATS FOR FALSE
             # Check if the string is equal to "true"
             if value == "true":
                 status = "pass"
@@ -211,5 +219,10 @@ def get_status(value, parameters):
                 if value == condition['s_eq']:
                     #print(f"s_eq to {condition['s_eq']}")
                     status = possible_status
+
+        # Config field "Match_Sexes" may return value as a string "false", which is different
+        # what is normally set for conditions in the config fields.
+        if value == "false":
+            status = "fail"
 
     return status # Returns the determined status
