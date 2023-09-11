@@ -154,6 +154,8 @@ cython_debug/
 
 # Multiqc data
 multiqc_data.json
+qc_report.json
+SampleSheet.csv
 
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can

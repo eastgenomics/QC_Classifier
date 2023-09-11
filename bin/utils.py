@@ -56,6 +56,7 @@ def get_unique_parameters(unique_id, yaml_file):
         - Config field (str): fields found in table_cond_formatting_rules from the "config.yaml"
                               file.
         - Output from read_config('config.yaml') function.
+
     Output:
         - parameters (dictionary): Conditions for the given config field.
 
@@ -71,7 +72,7 @@ def get_sample_lists(multiqc_data, csv_filepath):
 
     Input: 
         multiqc_data (variable which must have gone through json.load())
-            - i.e.: multiqc_data = json.load(open("multiqc_data.json"))
+            i.e.: multiqc_data = json.load(open("multiqc_data.json"))
         csv_filepath (string) filepath to samplesheet
 
     Output: 
@@ -111,7 +112,7 @@ def get_control_lists(multiqc_data):
 
     Input: 
         multiqc_data (variable which must have gone through json.load())
-            - i.e.: multiqc_data = json.load(open("multiqc_data.json"))
+            i.e.: multiqc_data = json.load(open("multiqc_data.json"))
 
     Output: 
         Tuple with sample IDs from the multiQC.json data in 

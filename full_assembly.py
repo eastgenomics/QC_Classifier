@@ -54,7 +54,11 @@ config_fields = list(yaml_content["table_cond_formatting_rules"].keys())
 # for each sample from getSampleLists.
 # IMPORTANT: May need to change order of nested for loop to optimise speed output.
 def main():
+
+    qc_report_output = {}
+
     for sample_list in sample_lists:
+
         # Script will first look at the sample_id from tuple
         sampleID = sample_list[0]
         sample_data = Classifier.get_sample_data(sampleID, multiqc_data)
@@ -82,7 +86,8 @@ def main():
                                     "sample_ID": sampleID,
                                     "value": value,
                                     "status": status
-                                    }
+                                   }
+
             # If value does not exist, check if value is found in for example sample_id_L1_R1
             # First, it needs to check if there is any sample_id_reads detected
             elif sample_list[1]:
@@ -97,10 +102,10 @@ def main():
 
                         # Make record structure list
                         record_call = {
-                                    "sample_ID": readID,
-                                    "value": value,
-                                    "status": status
-                                    }
+                                        "sample_ID": readID,
+                                        "value": value,
+                                        "status": status
+                                      }
 
                         record_structure.append(record_call)
                 else:
@@ -111,15 +116,18 @@ def main():
 
             if record_structure:
                 message_from_classifier = {
-                                        headerID:{
-                                                "thresholds": parameters,
-                                                "record": record_structure
-                                                }
-                                        }
+                                            headerID:{
+                                                      "thresholds": parameters,
+                                                      "record": record_structure
+                                                     }
+                                           }
 
                 sample_summary.update(message_from_classifier)
 
-        print({sampleID:sample_summary})
+        qc_report_output.update({sampleID:sample_summary})
+
+    with open('qc_report.json', 'w', encoding='UTF-8') as output_filename:
+        json.dump(qc_report_output, output_filename)
 
 if __name__ == "__main__":
     main()
