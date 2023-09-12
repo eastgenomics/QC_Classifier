@@ -9,7 +9,7 @@ All inputs:
     - config.yaml file
 
 Output structure:
-
+{
     {
     "Summary":{
         "SampleID_1": "pass", 
@@ -75,8 +75,7 @@ def main():
     multiqc_data = Classifier.get_multiqc_data(args.data)
 
     # List of config_fields
-    yaml_file = args.config
-    yaml_content = Classifier.read_config(yaml_file)
+    yaml_content = Classifier.read_config(args.config)
     config_fields = list(yaml_content["table_cond_formatting_rules"].keys())
 
     details_report_output = {}
