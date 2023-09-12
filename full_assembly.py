@@ -68,9 +68,11 @@ def main():
     yaml_content = Classifier.read_config(yaml_file)
     config_fields = list(yaml_content["table_cond_formatting_rules"].keys())
 
-    qc_report_output = {}
+    details_report_output = {}
+    summary_report_output = {}
     for sample in sample_list:
-        sample_summary = {}
+        metrics_summary = {}
+        status_list = []
         for config_field in config_fields:
             header_id = Classifier.map_header_id(config_field)
             parameters = Classifier.get_unique_parameters(config_field,
@@ -91,6 +93,7 @@ def main():
                                     "status": status
                                   }
                     record.append(record_call)
+                    status_list.append(status)
 
                 record = {
                           header_id:{
@@ -98,9 +101,20 @@ def main():
                                      "record": record
                                     }
                          }
-                sample_summary.update(record)
+                metrics_summary.update(record)
 
-        qc_report_output.update({sample:sample_summary})
+        if 'fail' in status_list:
+            status_summary = 'fail'
+        elif 'warn' in status_list:
+            status_summary = 'warn'
+        else:
+            status_summary = 'pass'
+
+        summary_report_output.update({sample:status_summary})
+        details_report_output.update({sample:metrics_summary})
+
+    qc_report_output = {"Summary":summary_report_output}
+    qc_report_output.update({"Details": details_report_output})
 
     # Saving output
     with open('qc_report.json', 'w', encoding='UTF-8') as output_filename:

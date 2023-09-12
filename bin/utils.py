@@ -116,7 +116,7 @@ def get_key_value(summarised_data, sample_id, header_id):
     """Return the value of given sample ID and header_id in a dictionary format.
 
     Args:
-        summarised_data (dictionar): multiqc_data obtained from get_multiqc_data().
+        summarised_data (dict): multiqc_data obtained from get_multiqc_data().
         sample_id (str): Sample ID obtained from SampleSheet.csv
         header_id (str): Output of map_header_id(config_field)
 
@@ -129,13 +129,17 @@ def get_key_value(summarised_data, sample_id, header_id):
     for key, val in summarised_data.items():
         if sample_id in key and header_id in key:
             if f"{sample_id}.{header_id}" in key:
-                new_key = re.search(f"{sample_id}", key).group()
-                result.update({new_key:val})
+                new_key = re.search(f"{sample_id}", key)
             else:
                 new_key = re.search(f"{sample_id}[A-Z0-9_]+", key)
-                if new_key:
-                    new_key = new_key.group()
-                    result.update({new_key:val})
+
+            # Need to create an exception for "PCT_TARGET_BASES_20X"
+            if header_id == "PCT_TARGET_BASES_20X":
+                val = val*100
+
+            if new_key:
+                new_key = new_key.group()
+                result.update({new_key:val})
     return result
 
 def get_status(value, parameters):
