@@ -1,6 +1,8 @@
 """Python version 3.10.12 """
 import json
 from pathlib import Path
+import re
+from flatten_json import flatten
 import pandas
 import yaml
 
@@ -66,7 +68,7 @@ def get_unique_parameters(unique_id, yaml_file):
     return parameters
 
 
-def get_sample_lists(multiqc_data, csv_filepath):
+def get_sample_lists(csv_filepath):
     '''
     Creates a structured list of samples used in the MultiQC run
 
@@ -87,85 +89,54 @@ def get_sample_lists(multiqc_data, csv_filepath):
         sample_sheet = pandas.read_csv(file, skiprows=20)
     sample_ids = list(sample_sheet['Sample_ID'])
 
-    # Getting all reads sample IDs from Multiqc_data.json
-    record_ids = multiqc_data["report_data_sources"]["FastQC"]["all_sections"].keys()
-
-    # Final output of function
-    sample_lists = []
-
-    for sample_id in sample_ids:
-        record_list = []
-        # Treat sample_id as a string that can be found is some IDs found in record IDs
-        substring = sample_id
-        for item in record_ids:
-            if substring in item:
-                # store record IDs in list
-                record_list.append(item)
-        # append sample ID with corresponding record IDs as a tupple
-        sample_lists.append((sample_id,tuple(record_list)))
-    return sample_lists
+    return sample_ids
 
 
-def get_control_lists(multiqc_data):
+# create a function that extracts all the data that we need given the multiqc.json
+def get_multiqc_data(multiqc_filepath):
+    """Return a flattened dictionary with values for all samples from given multiqc run.
+
+    Args:
+        multiqc_filepath (str): filepath for where multiqc_file is located
+
+    Returns:
+        dict: dictionary of summarised multiqc.json file
     """
-    Creates a structured list of controls used in the MultiQC run
+    with open(multiqc_filepath, 'r', encoding='UTF-8') as file:
+        multiqc_data = json.load(file)
 
-    Input: 
-        multiqc_data (variable which must have gone through json.load())
-            i.e.: multiqc_data = json.load(open("multiqc_data.json"))
-
-    Output: 
-        Tuple with sample IDs from the multiQC.json data in 
-        multiqc_happy_indel_data and multiqc_happy_snp_data
-
-    Basic structure of output:
-        ([controlSample_snp_all, controlSample_snp_pass], 
-         [controlSample_indel_all, controlSample_indel_pass])
-    """
-
-    # Get all relevant IDs first
-    snp_ids = multiqc_data["report_saved_raw_data"]["multiqc_happy_snp_data"].keys()
-    indel_ids = multiqc_data["report_saved_raw_data"]["multiqc_happy_indel_data"].keys()
-
-    return snp_ids, indel_ids
-
-
-def get_sample_data(sample_id, multiqc_data):
-    '''
-    Given any kind of sample ID, retrieves its data from the multiqc_data.json file 
-    (in keys "report_saved_raw_data" and "report_general_stats_data")
-
-    Input:
-        - Sample ID string (string from fuctions getControlLists or getSampleLists)
-        - multiqc_data 
-
-    Output:
-        - dictionary with all data associated with given sample_id and multiqc_data
-    '''
-    #print(f"I got {sample_id}")
-
-    raw_data_keys = multiqc_data["report_saved_raw_data"].keys()
-    data = {}
-
-    # If and elif statements only are applicable when given ids from getControlLists
-    if "_INDEL_" in sample_id:
-        data.update(multiqc_data["report_saved_raw_data"]
-                                ["multiqc_happy_indel_data"].get(sample_id))
-    elif "_SNP_" in sample_id:
-        data.update(multiqc_data["report_saved_raw_data"]["multiqc_happy_snp_data"].get(sample_id))
-    # Most sample IDs will go through the following else statement.
-    else:
-        for item in multiqc_data["report_general_stats_data"]:
-            general_data = item.get(sample_id)
-            if general_data:
-                data.update(general_data)
-        for key in raw_data_keys:
-            raw_data = multiqc_data["report_saved_raw_data"][key].get(sample_id)
-            if raw_data:
-                data.update(raw_data)
-
+        data = flatten(multiqc_data, '.', root_keys_to_ignore = {'report_data_sources',
+                                                                'report_general_stats_headers',
+                                                                'report_multiqc_commant',
+                                                                'report_plot_data'})
     return data
 
+# create a function which returns you a value given the sample ID and parameter
+def get_key_value(summarised_data, sample_id, header_id):
+    """Return the value of given sample ID and header_id in a dictionary format.
+
+    Args:
+        summarised_data (dictionar): multiqc_data obtained from get_multiqc_data().
+        sample_id (str): Sample ID obtained from SampleSheet.csv
+        header_id (str): Output of map_header_id(config_field)
+
+    Returns:
+        dict: dictionary with following structure {"multiqc_sample_ID" : "value"}, 
+        may return more than one value.
+    """
+    # return all values for a given sampleID
+    result = {}
+    for key, val in summarised_data.items():
+        if sample_id in key and header_id in key:
+            if f"{sample_id}.{header_id}" in key:
+                new_key = re.search(f"{sample_id}", key).group()
+                result.update({new_key:val})
+            else:
+                new_key = re.search(f"{sample_id}[A-Z0-9_]+", key)
+                if new_key:
+                    new_key = new_key.group()
+                    result.update({new_key:val})
+    return result
 
 def get_status(value, parameters):
     '''
@@ -188,13 +159,6 @@ def get_status(value, parameters):
 
         conditions = parameters.get(possible_status)
 
-        # Check if one of the possible status values is a boolean == True
-        if isinstance(possible_status, bool) and possible_status is True:
-            # For possible status, check if it is a boolean and the boolean is equal to True
-            # Check if the string is equal to "true"
-            if value == "true":
-                status = "pass"
-
         # Iterate through the list of conditions for each possible status: 'gt', 'lt', 'eq', 's_eq'
         for condition in conditions:
 
@@ -202,27 +166,30 @@ def get_status(value, parameters):
             # Or statements are necessary to prevent any condition with value
             # 0 to be treated as false
             if condition.get('gt') or condition.get('gt') == 0:
-                if value > condition.get('gt'):
+                if float(value) > float(condition.get('gt')):
                     #print(f"gt than {condition['gt']}")
                     status = possible_status
 
             if condition.get('lt') or condition.get('lt') == 0:
-                if value < condition['lt']:
+                if float(value) < float(condition['lt']):
                     #print(f"lt than {condition['lt']}")
                     status = possible_status
 
             if condition.get('eq') or condition.get('eq') == 0:
-                if value == condition['eq']:
+                if float(value) == float(condition['eq']):
                     #print(f"eq than {condition['eq']}")
                     status = possible_status
 
             if condition.get('s_eq'):
-                if value == condition['s_eq']:
+                if str(value) == str(condition['s_eq']):
                     #print(f"s_eq to {condition['s_eq']}")
                     status = possible_status
 
-        # Config field "Match_Sexes" may return value as a string "false", which is different
-        # what is normally set for conditions in the config fields.
+        # Config field "Match_Sexes" may return value as a string "false" or "true"
+        # which is different to what is set for the config fields.
+        if value == "true":
+            status = "pass"
+
         if value == "false":
             status = "fail"
 
