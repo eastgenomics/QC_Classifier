@@ -8,21 +8,16 @@ import yaml
 
 
 def map_header_id(config_field):
-    """
-    Important concepts to understand this function:
-        - Config field: Any ID found in config.yaml file found in the key called 
-                     "table_cond_formatting_rules"
-        - Header ID: Any ID found inside multiqc_data.json. Sometimes Config Fileds
-                     and Header IDs are the same, but they are mostly different.
-    
-    This function gives the Header ID for any give Unique ID, 
-    IMPORTANT: file "idUniqueIdRelationship.json" should be included to work.
+    """ Function that gives the Header ID for any give Unique ID.
+    IMPORTANT: file "idUniqueIdRelationship.json" in "resources/"should be 
+    included to work.
 
-    Input:
-        - Config Field
-    Output:
-        - Header ID
+    Args:
+        config_field (str): field provided by the config.yaml file, in
+        "table_cond_formatting rules"
 
+    Returns:
+        str: Header ID, it is the associated metric used in the multiqc.json file
     """
     # First get file from resources/ folder
     config_header_filepath = Path(__file__).parent.joinpath('..','resources',
@@ -37,7 +32,7 @@ def map_header_id(config_field):
 
 
 def read_config(yaml_file):
-    """This function reads any .yaml file in a .json-like structure.
+    """Function that reads any .yaml file in a .json-like structure.
 
     Args:
         yaml_file (str): filename and relative path of the config.yaml file
@@ -50,9 +45,7 @@ def read_config(yaml_file):
 
 
 def get_unique_parameters(unique_id, yaml_file):
-
-    """
-    This function outputs the list of conditions/parameters found in the config.yaml file.
+    """Function  that outputs the list of conditions/parameters found in the config.yaml file.
 
     Input:
         - Config field (str): fields found in table_cond_formatting_rules from the "config.yaml"
@@ -69,30 +62,24 @@ def get_unique_parameters(unique_id, yaml_file):
 
 
 def get_sample_lists(csv_filepath):
-    '''
-    Creates a structured list of samples used in the MultiQC run
+    """Creates a structured list of samples from the provided SampleSheet.csv
 
-    Input: 
-        multiqc_data (variable which must have gone through json.load())
-            i.e.: multiqc_data = json.load(open("multiqc_data.json"))
-        csv_filepath (string) filepath to samplesheet
+    Args:
+        csv_filepath (str): filelocation of csv_filepath
 
-    Output: 
-        List of tuples with sample IDs for each sample patient
-    
-    Basic structure of one tuple:
-        (sample_id, (sample_id_L1_R1, sample_id_L1_R2, sample_id_L2_R1, sample_id_L2_R2))
-    '''
+    Returns:
+        list: list of strings, each string represents a sample from multiqc.json 
+    """
 
     # Get all IDs from sample sheet
     with open(csv_filepath, 'r', encoding='UTF-8') as file:
-        sample_sheet = pandas.read_csv(file, skiprows=20)
-    sample_ids = list(sample_sheet['Sample_ID'])
+        sample_sheet = pandas.read_csv(file, header=None, usecols=[0])
+    column = sample_sheet[0].tolist()
+    sample_list = column[column.index('Sample_ID') + 1:]
 
-    return sample_ids
+    return sample_list
 
 
-# create a function that extracts all the data that we need given the multiqc.json
 def get_multiqc_data(multiqc_filepath):
     """Return a flattened dictionary with values for all samples from given multiqc run.
 
@@ -111,14 +98,15 @@ def get_multiqc_data(multiqc_filepath):
                                                                 'report_plot_data'})
     return data
 
-# create a function which returns you a value given the sample ID and parameter
+
 def get_key_value(summarised_data, sample_id, header_id):
     """Return the value of given sample ID and header_id in a dictionary format.
 
     Args:
         summarised_data (dict): multiqc_data obtained from get_multiqc_data().
         sample_id (str): Sample ID obtained from SampleSheet.csv
-        header_id (str): Output of map_header_id(config_field)
+        header_id (str): Metric used in multiqc.json file, obtained from 
+        output map_header_id(config_field)
 
     Returns:
         dict: dictionary with following structure {"multiqc_sample_ID" : "value"}, 
@@ -142,9 +130,9 @@ def get_key_value(summarised_data, sample_id, header_id):
                 result.update({new_key:val})
     return result
 
+
 def get_status(value, parameters):
-    '''
-    Function to determine pass/warn/fail status based on given value and parameters.
+    """Function to determine pass/warn/fail status based on given value and parameters.
 
     Inputs:
         Value (string or float)
@@ -154,7 +142,7 @@ def get_status(value, parameters):
         Status: string with one of the following options:
                    "unknown", "pass", "warn" or "fail" 
                 Status "unknown" should be avoided.
-    '''
+    """
 
     status = "unknown" # Given default status if not classified
 
@@ -167,26 +155,22 @@ def get_status(value, parameters):
         for condition in conditions:
 
             # Checking if any of the following conditions exist
-            # Or statements are necessary to prevent any condition with value
+            # The "or statements" are necessary to prevent any condition with value
             # 0 to be treated as false
             if condition.get('gt') or condition.get('gt') == 0:
                 if float(value) > float(condition.get('gt')):
-                    #print(f"gt than {condition['gt']}")
                     status = possible_status
 
             if condition.get('lt') or condition.get('lt') == 0:
                 if float(value) < float(condition['lt']):
-                    #print(f"lt than {condition['lt']}")
                     status = possible_status
 
             if condition.get('eq') or condition.get('eq') == 0:
                 if float(value) == float(condition['eq']):
-                    #print(f"eq than {condition['eq']}")
                     status = possible_status
 
             if condition.get('s_eq'):
                 if str(value) == str(condition['s_eq']):
-                    #print(f"s_eq to {condition['s_eq']}")
                     status = possible_status
 
         # Config field "Match_Sexes" may return value as a string "false" or "true"

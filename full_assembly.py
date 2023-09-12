@@ -4,25 +4,38 @@ outputs that we need, all we have to do is join everything together in
 a complex dictionary. 
 
 All inputs:
-    - idUniqueIDRelationship.json
+    - SampleSheet.csv
     - multiqc_data.json
     - config.yaml file
 
-Output:
+Output structure:
 
     {
-     SampleID:[
-               HeaderID:{
-                         "thresholds": parameters,
-                         "record":[
-                                   "sample_ids":{
-                                                 "value":1.0,
-                                                 "status":status
-                                                }
-                                  ]
-                        }
-               ]
+    "Summary":{
+        "SampleID_1": "pass", 
+        "SampleID_2": "warn"
+
+    },
+   "Details":{
+       "SampleID_1":{
+            "Metric_1":{
+                "threshold": "json like structure from config file",
+                "record":[
+                    {
+                    "sample":"SampleID_1_R1",
+                    "value": 1.0,
+                    "status": "pass"
+                    },
+                    {
+                    "sample":"SampleID_1_R1",
+                    "value": 1.0,
+                    "status": "pass"
+                    }
+                ]
+            }
+        }
     }
+}
 
 """
 import argparse
@@ -56,12 +69,10 @@ def main():
     """
     args = parse_args()
     # List of samples
-    sample_sheet = args.samplesheet
-    sample_list = Classifier.get_sample_lists(sample_sheet)
+    sample_list = Classifier.get_sample_lists(args.samplesheet)
 
     # Multiqc data
-    multiqc_data_file = args.data
-    multiqc_data = Classifier.get_multiqc_data(multiqc_data_file)
+    multiqc_data = Classifier.get_multiqc_data(args.data)
 
     # List of config_fields
     yaml_file = args.config
