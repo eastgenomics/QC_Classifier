@@ -1,4 +1,24 @@
-"""Python version 3.10.12 """
+"""
+Personal set of functions which are used to complete some of the main steps for QC classification
+
+Functions:
+- map_header_id(config_field): 
+    - Function that gives the Header ID for any give Unique ID.
+- reade_config(yaml_file): 
+    - Function that reads any .yaml file in a .json-like structure.
+- get_unique_parameters(unique_id, yaml_file): 
+    - Function  that outputs the list of conditions/parameters found in the config.yaml file.
+- get_sample_lists(csv_filepath):
+    - Creates a structured list of samples from the provided SampleSheet.csv.
+- get_multiqc_data(multiqc_filepath):
+    - Return a flattened dictionary with values for all samples from given multiqc run.
+- get_key_value(summarised_data, sample_id, header_id):
+    - Return the value of given sample_id and header_id in a dictionary format.
+- get_status(value, parameters):
+    - Function to determine pass/warn/fail status based on given value and parameters.
+
+Python version 3.10.12 
+"""
 import json
 from pathlib import Path
 import re
@@ -62,7 +82,7 @@ def get_unique_parameters(unique_id, yaml_file):
 
 
 def get_sample_lists(csv_filepath):
-    """Creates a structured list of samples from the provided SampleSheet.csv
+    """Creates a structured list of samples from the provided SampleSheet.csv.
 
     Args:
         csv_filepath (str): filelocation of csv_filepath
