@@ -26,65 +26,6 @@ Output:
 
 """
 import argparse
-## FUNCTIONS that may be deleted
-def get_sample_data(sample_id, multiqc_data):
-    '''
-    Given any kind of sample ID, retrieves its data from the multiqc_data.json file 
-    (in keys "report_saved_raw_data" and "report_general_stats_data")
-
-    Input:
-        - Sample ID string (string from fuctions getControlLists or getSampleLists)
-        - multiqc_data 
-
-    Output:
-        - dictionary with all data associated with given sample_id and multiqc_data
-    '''
-    #print(f"I got {sample_id}")
-
-    raw_data_keys = multiqc_data["report_saved_raw_data"].keys()
-    data = {}
-
-    # If and elif statements only are applicable when given ids from getControlLists
-    if "_INDEL_" in sample_id:
-        data.update(multiqc_data["report_saved_raw_data"]
-                                ["multiqc_happy_indel_data"].get(sample_id))
-    elif "_SNP_" in sample_id:
-        data.update(multiqc_data["report_saved_raw_data"]["multiqc_happy_snp_data"].get(sample_id))
-    # Most sample IDs will go through the following else statement.
-    else:
-        for item in multiqc_data["report_general_stats_data"]:
-            general_data = item.get(sample_id)
-            if general_data:
-                data.update(general_data)
-        for key in raw_data_keys:
-            raw_data = multiqc_data["report_saved_raw_data"][key].get(sample_id)
-            if raw_data:
-                data.update(raw_data)
-
-    return data
-
-def get_control_lists(multiqc_data):
-    """
-    Creates a structured list of controls used in the MultiQC run
-
-    Input: 
-        multiqc_data (variable which must have gone through json.load())
-            i.e.: multiqc_data = json.load(open("multiqc_data.json"))
-
-    Output: 
-        Tuple with sample IDs from the multiQC.json data in 
-        multiqc_happy_indel_data and multiqc_happy_snp_data
-
-    Basic structure of output:
-        ([controlSample_snp_all, controlSample_snp_pass], 
-         [controlSample_indel_all, controlSample_indel_pass])
-    """
-
-    # Get all relevant IDs first
-    snp_ids = multiqc_data["report_saved_raw_data"]["multiqc_happy_snp_data"].keys()
-    indel_ids = multiqc_data["report_saved_raw_data"]["multiqc_happy_indel_data"].keys()
-
-    return snp_ids, indel_ids
 import json
 import bin.utils as Classifier
 
