@@ -123,11 +123,13 @@ def main():
         summary_report_output.update({sample:status_summary})
         details_report_output.update({sample:metrics_summary})
 
+    # Generating qc_report structure
     qc_report_output = {"Summary":summary_report_output}
     qc_report_output.update({"Details": details_report_output})
+    qc_report_filename = Classifier.get_output_filename(multiqc_data)
 
     # Saving output
-    with open('qc_report.json', 'w', encoding='UTF-8') as output_filename:
+    with open(qc_report_filename, 'w', encoding='UTF-8') as output_filename:
         json.dump(qc_report_output, output_filename)
 
 if __name__ == "__main__":

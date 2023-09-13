@@ -113,9 +113,8 @@ def get_multiqc_data(multiqc_filepath):
         multiqc_data = json.load(file)
 
         data = flatten(multiqc_data, '.', root_keys_to_ignore = {'report_data_sources',
-                                                                'report_general_stats_headers',
-                                                                'report_multiqc_commant',
-                                                                'report_plot_data'})
+                                                                 'report_general_stats_headers',
+                                                                 'report_plot_data'})
     return data
 
 
@@ -202,3 +201,18 @@ def get_status(value, parameters):
             status = "fail"
 
     return status # Returns the determined status
+
+
+def get_output_filename(summarised_data):
+    """Generate output filename for QC classifier from the multiqc data.
+
+    Args:
+        summarised_data (dict): multiqc_data obtained from get_multiqc_data().
+
+    Returns:
+        str: proposed filename for the QC report output e.g.: 
+        200222_A12345_1234_ABCDEFGHI5_RUN-RUN-200221_6789-multiqc.json
+    """
+    output_filename = re.search("[0-9]{6}_[A-Z0-9]{6}_[0-9]{4}_[A-Z0-9a-z_-]+multiqc",
+                                summarised_data["report_multiqc_command"]).group()
+    return f"{output_filename}.json"
