@@ -41,11 +41,11 @@ def map_header_id(config_field):
     """
     # First get file from resources/ folder
     config_header_filepath = Path(__file__).parent.joinpath('..','resources',
-                                                            'idUniqueIdRelationship.json')
+                                                            'idConfigFieldRelationship.json')
     with open(config_header_filepath,
               'r', encoding='UTF-8') as file:
         config_field_relationship = json.load(file)
-    id_mapping = {item["Unique_ID"]: item["Header_ID"] for item in config_field_relationship}
+    id_mapping = {item["Config_field"]: item["Header_ID"] for item in config_field_relationship}
     header_id = id_mapping.get(config_field)
 
     return header_id
