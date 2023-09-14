@@ -53,7 +53,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description='QC Classifier for multiqc data')
 
     parser.add_argument('samplesheet', type=str,
-                        help='Filepath to SampleSheet.csv file')
+                        help='filepath to SampleSheet.csv file')
     parser.add_argument('data', type=str,
                         help='filepath to multiqc.json file')
     parser.add_argument('config', type=str,

@@ -29,7 +29,7 @@ import yaml
 
 def map_header_id(config_field):
     """ Function that gives the Header ID for any give Unique ID.
-    IMPORTANT: file "idUniqueIdRelationship.json" in "resources/"should be 
+    IMPORTANT: file "idConfigFieldRelationship.json" in "resources/"should be 
     included to work.
 
     Args:
@@ -213,6 +213,15 @@ def get_output_filename(summarised_data):
         str: proposed filename for the QC report output e.g.: 
         200222_A12345_1234_ABCDEFGHI5_RUN-RUN-200221_6789-multiqc.json
     """
-    output_filename = re.search("[0-9]{6}_[A-Z0-9]{6}_[0-9]{4}_[A-Z0-9a-z_-]+multiqc",
-                                summarised_data["report_multiqc_command"]).group()
-    return f"{output_filename}.json"
+    match = re.search("[0-9]{6}_[A-Z0-9]{6}_[0-9]{4}_[A-Z0-9a-z_-]+multiqc",
+                                summarised_data["report_multiqc_command"])
+
+    if match:
+        return f"{match.group()}.json"
+    else:
+        print(
+            "Run ID could not be parsed from 'report_multiqc_command' field in multiqc json:\n"
+            f"{summarised_data['report_multiqc_command']}. \n"
+            "Writing to multiqc_qc_classified.json"
+            )
+    return 'multiqc_qc_classified.json'
