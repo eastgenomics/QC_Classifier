@@ -2,39 +2,58 @@
 
 ### How to get list of samples
 ```
-# TODO: update on how multiqc data is loaded
-multiqc_data = json.load(open("multiqc_data.json"))
-sample_lists = Classifier.getSampleLists(multiqc_data)
+sample_list = Classifier.get_sample_lists(args.samplesheet)
 ```
-### How to get any sample data
+### How to get list of config fields
 ```
-sampleID = '123991777-23187R0015-23NGCEN9-9527-F-99347387'
-sample_data = Classifier.getSampleData(sampleID, multiqc_data)
-```
-### How to get list of uniqueIDs
-```
-# TODO: Might need to change that too
-yaml_file = "CEN_multiqc_config_v2.1.0.yaml"
-with open(yaml_file,'r') as file:
-    yaml_content = YAML().load(file)
-uniqueIDs = list(yaml_content["table_cond_formatting_rules"].keys())
+yaml_content = Classifier.read_config(args.config)
+config_fields = list(yaml_content["table_cond_formatting_rules"].keys())
 ```
 ### How to get any parameter
 ```
-uniqueID = "FREEMIX"
-parameters = Classifier.getUniqueParameters(uniqueID, "CEN_multiqc_config_v2.1.0.yaml")
+header_id = Classifier.map_header_id(config_field)
+parameters = Classifier.get_unique_parameters(config_field, yaml_content)
 ```
 ### How to get any value
 ```
-headerID = Classifier.getHeaderID(uniqueID)
-value = sample_data.get(headerID)
+key_values = Classifier.get_key_value(multiqc_data, sample, header_id)
 ```
 ### How to get any status
 ```
-status = Classifier.getStatus(value, parameters)
+status = Classifier.get_status(value, parameters)
 ```
-### .json output Structure
+### .json output Structure (example)
 ```
-record_structure = {sampleID:{"value": value, "status": status}}
-record_output = {"record": record_structure}
+{
+    {
+    "Summary":{
+        "SampleID_1": "pass", 
+        "SampleID_2": "warn"
+
+    },
+   "Details":
+        {
+       "SampleID_1":
+            {
+            "Metric_1":
+                {
+                "threshold": "json like structure from config file",
+                "record":
+                    [
+                        {
+                        "sample":"SampleID_1_R1",
+                        "value": 1.0,
+                        "status": "pass"
+                        },
+                        {
+                        "sample":"SampleID_1_R1",
+                        "value": 1.0,
+                        "status": "pass"
+                        }
+                    ]
+                }
+            }   
+        }
+    }
+}
 ```
