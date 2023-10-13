@@ -27,7 +27,7 @@ import pandas
 import yaml
 
 
-def map_header_id(config_field, filepath=False) -> str:
+def map_header_id(config_field) -> str:
     """ Function that gives the Header ID for any give Unique ID.
     IMPORTANT: file "idConfigFieldRelationship.json" in "resources/"should be 
     included to work.
@@ -49,12 +49,12 @@ def map_header_id(config_field, filepath=False) -> str:
     header_id = id_mapping.get(config_field)
 
     if header_id is None:
-        raise NameError(f"WARNING: {config_field} does not have an associated Header ID.")
+        raise NameError(f"Config field {config_field} does not have an associated Header ID.")
 
     return header_id
 
 
-def read_config(yaml_file):
+def read_config(yaml_file) -> dict:
     """Function that reads any .yaml file in a .json-like structure.
 
     Args:
@@ -64,10 +64,14 @@ def read_config(yaml_file):
     """
     with open(yaml_file, 'r', encoding='UTF-8') as file:
         yaml_file = yaml.safe_load(file)
+
+    if not yaml_file.get("table_cond_formatting_rules"):
+        raise TypeError(f"{yaml_file} does not have 'table_cond_formatting_rules' key")
+
     return yaml_file
 
 
-def get_unique_parameters(unique_id, yaml_file):
+def get_unique_parameters(unique_id, yaml_file) -> dict:
     """Function  that outputs the list of conditions/parameters found in the config.yaml file.
 
     Input:
@@ -80,15 +84,12 @@ def get_unique_parameters(unique_id, yaml_file):
 
     """
 
-    parameters = yaml_file["table_cond_formatting_rules"].get(unique_id)
-
-    if parameters is None:
-        raise Warning(f"No parameters found for {unique_id}")
+    parameters = yaml_file["table_cond_formatting_rules"][unique_id]
 
     return parameters
 
 
-def get_sample_lists(csv_filepath):
+def get_sample_lists(csv_filepath) -> list:
     """Creates a structured list of samples from the provided SampleSheet.csv.
 
     Args:
@@ -102,12 +103,13 @@ def get_sample_lists(csv_filepath):
     with open(csv_filepath, 'r', encoding='UTF-8') as file:
         sample_sheet = pandas.read_csv(file, header=None, usecols=[0])
     column = sample_sheet[0].tolist()
+    print(column)
     sample_list = column[column.index('Sample_ID') + 1:]
 
     return sample_list
 
 
-def get_multiqc_data(multiqc_filepath):
+def get_multiqc_data(multiqc_filepath) -> dict:
     """Return a flattened dictionary with values for all samples from given multiqc run.
 
     Args:
