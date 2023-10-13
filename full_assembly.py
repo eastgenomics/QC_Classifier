@@ -82,7 +82,7 @@ def main():
 
     summary_report_output = {}
     details_report_output = {}
-    
+
     for sample in sample_list:
         metrics_summary = {}
         status_list = []

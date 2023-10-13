@@ -27,7 +27,7 @@ import pandas
 import yaml
 
 
-def map_header_id(config_field):
+def map_header_id(config_field, filepath=False) -> str:
     """ Function that gives the Header ID for any give Unique ID.
     IMPORTANT: file "idConfigFieldRelationship.json" in "resources/"should be 
     included to work.
@@ -47,6 +47,9 @@ def map_header_id(config_field):
         config_field_relationship = json.load(file)
     id_mapping = {item["Config_field"]: item["Header_ID"] for item in config_field_relationship}
     header_id = id_mapping.get(config_field)
+
+    if header_id is None:
+        raise NameError(f"WARNING: {config_field} does not have an associated Header ID.")
 
     return header_id
 
@@ -78,6 +81,10 @@ def get_unique_parameters(unique_id, yaml_file):
     """
 
     parameters = yaml_file["table_cond_formatting_rules"].get(unique_id)
+
+    if parameters is None:
+        raise Warning(f"No parameters found for {unique_id}")
+
     return parameters
 
 
@@ -125,7 +132,7 @@ def get_key_value(summarised_data, sample_id, header_id):
         summarised_data (dict): multiqc_data obtained from get_multiqc_data().
         sample_id (str): Sample ID obtained from SampleSheet.csv
         header_id (str): Metric used in multiqc.json file, obtained from 
-        output map_header_id(config_field)
+                         output map_header_id(config_field)
 
     Returns:
         dict: dictionary with following structure {"multiqc_sample_ID" : "value"}, 
@@ -147,6 +154,8 @@ def get_key_value(summarised_data, sample_id, header_id):
             if new_key:
                 new_key = new_key.group()
                 result.update({new_key:val})
+
+    #TODO: return warning message if error released
     return result
 
 
@@ -194,10 +203,13 @@ def get_status(value, parameters):
 
         # Config field "Match_Sexes" may return value as a string "false" or "true"
         # which is different to what is set for the config fields.
-        if value == "true":
+        if value == "true" or value == "pass":
             status = "pass"
 
-        if value == "false":
+        if value == "unknown" or value == "warn":
+            status = "warn"
+
+        if value == "false" or value == "fail":
             status = "fail"
 
     return status # Returns the determined status

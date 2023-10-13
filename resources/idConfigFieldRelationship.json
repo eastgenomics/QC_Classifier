@@ -464,99 +464,99 @@
     "Config_field": "mqc-generalstats-picard-summed_mean"
   },
   {
-    "Header_ID": "unk",
+    "Header_ID": "SNVs_unk",
     "Config_field": "unk"
   },
   {
-    "Header_ID": "total.truth",
+    "Header_ID": "SNVs_total.truth",
     "Config_field": "total.truth"
   },
   {
-    "Header_ID": "total.query",
+    "Header_ID": "SNVs_total.query",
     "Config_field": "total.query"
   },
   {
-    "Header_ID": "tp",
+    "Header_ID": "SNVs_tp",
     "Config_field": "tp"
   },
   {
-    "Header_ID": "fn",
+    "Header_ID": "SNVs_fn",
     "Config_field": "fn"
   },
   {
-    "Header_ID": "fp",
+    "Header_ID": "SNVs_fp",
     "Config_field": "fp"
   },
   {
-    "Header_ID": "recall",
+    "Header_ID": "SNVs_recall",
     "Config_field": "recall"
   },
   {
-    "Header_ID": "precision",
+    "Header_ID": "SNVs_precision",
     "Config_field": "precision"
   },
   {
-    "Header_ID": "unk",
+    "Header_ID": "indels_unk",
     "Config_field": "unk-1"
   },
   {
-    "Header_ID": "total.truth",
+    "Header_ID": "indels_total.truth",
     "Config_field": "total_truth-1"
   },
   {
-    "Header_ID": "total.query",
+    "Header_ID": "indels_total.query",
     "Config_field": "total_query-1"
   },
   {
-    "Header_ID": "tp",
+    "Header_ID": "indels_tp",
     "Config_field": "tp-1"
   },
   {
-    "Header_ID": "fn",
+    "Header_ID": "indels_fn",
     "Config_field": "fn-1"
   },
   {
-    "Header_ID": "fp",
+    "Header_ID": "indels_fp",
     "Config_field": "fp-1"
   },
   {
-    "Header_ID": "recall",
+    "Header_ID": "indels_recall",
     "Config_field": "recall-1"
   },
   {
-    "Header_ID": "precision",
+    "Header_ID": "indels_precision",
     "Config_field": "precision-1"
   },
   {
-    "Header_ID": "unk",
+    "Header_ID": "records_unk",
     "Config_field": "unk-2"
   },
   {
-    "Header_ID": "total.truth",
+    "Header_ID": "records_total.truth",
     "Config_field": "total.truth-2"
   },
   {
-    "Header_ID": "total.query",
+    "Header_ID": "records_total.query",
     "Config_field": "total.query-2"
   },
   {
-    "Header_ID": "tp",
+    "Header_ID": "records_tp",
     "Config_field": "tp-2"
   },
   {
-    "Header_ID": "fn",
+    "Header_ID": "records_fn",
     "Config_field": "fn-2"
   },
   {
-    "Header_ID": "fp",
+    "Header_ID": "records_fp",
     "Config_field": "fp-2"
   },
   {
-    "Header_ID": "recall",
+    "Header_ID": "records_recall",
     "Config_field": "recall-2"
   },
   {
-    "Header_ID": "precision",
+    "Header_ID": "records_precision",
     "Config_field": "precision-2"
   }
  ]
