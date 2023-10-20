@@ -123,7 +123,7 @@ def get_multiqc_data(multiqc_filepath) -> dict:
 
         data = flatten(multiqc_data, '.', root_keys_to_ignore = {'report_data_sources',
                                                                  'report_general_stats_headers',
-                                                                 'report_plot_data'})
+                                                                 'reports_plot_data'})
     return data
 
 

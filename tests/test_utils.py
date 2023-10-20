@@ -43,6 +43,18 @@ TEST_YAML_CONTENT = {'title':'East GLH MultiQC Report',
                                  'warn': [{'eq': 45.0}, {'gt': 45.0}],
                                  'fail': [{'eq': 50.0}, {'gt': 50.0}]}}}
 
+TEST_MULTIQC_DATA = {
+    'report_general_stats_data.0.sample_1.FOLD_ENRICHMENT': 1,
+    'report_general_stats_data.0.sample_2.FOLD_ENRICHMENT': 1,
+    'report_general_stats_data.1.sample_1.Match_Sexes': 'true',
+    'report_general_stats_data.1.sample_2.Match_Sexes': 'false',
+    'report_saved_raw_data.multiqc_happy_snp_data.sample_1_SNP_ALL.Metric.Recall_snp':'1.0',
+    'report_saved_raw_data.multiqc_happy_snp_data.sample_1_SNP_PASS.Metric.Recall_snp':'1.0',
+    'report_saved_raw_data.multiqc_general_stats.sample_1_L001_R1.percent_duplicates': 47.37,
+    'report_saved_raw_data.multiqc_general_stats.sample_1_L001_R2.percent_duplicates': 42.74,
+    'report_saved_raw_data.multiqc_general_stats.sample_2_L001_R1.percent_duplicates': 41.32,
+    'report_saved_raw_data.multiqc_general_stats.sample_2_L001_R2.percent_duplicates': 43.30,
+    'report_multiqc_command':'multiqc 230725_A01303_0234_AHHLGMDRX3_CEN-CEN-230726_1357-multiqc.html'}
 
 class TestMapHeaderID(unittest.TestCase):
     """
@@ -159,7 +171,7 @@ class TestGetSampleLists(unittest.TestCase):
             Classifier.read_config(unknown_filepath)
 
 
-class TestMultiqcData(unittest.TestCase):
+class TestGetMultiqcData(unittest.TestCase):
     """
     Tests for get_multiqc_data(multiqc_filepath)
     """
@@ -169,12 +181,33 @@ class TestMultiqcData(unittest.TestCase):
         """
         Test if multiqc_data.csv is read as expected
         """
+        expected_output = TEST_MULTIQC_DATA
+        tested_output = Classifier.get_multiqc_data(self.MULTIQC_EXAMPLE_FILEPATH)
+        self.assertEqual(tested_output, expected_output,
+                         "The multiqc_data_example.json is not read as expected")
+
+
+    def test_ignore_keys(self):
+        """
+        Test if keys are ignored using the flatten funciton
+        """
+        with patch('bin.utils.json.load') as mock:
+
+            mock.return_value = {'report_data_sources':'should_ignore',
+                                 'report_general_stats_headers':'should_ignore',
+                                 'reports_general_stats_data':{'example':'should_retain'},
+                                 'reports_plot_data':'should_ignore'}
+
+            expected_output = {'reports_general_stats_data.example':'should_retain'}
+            tested_output = Classifier.get_multiqc_data(self.MULTIQC_EXAMPLE_FILEPATH)
+            self.assertEqual(tested_output,expected_output,
+                             "The get_multiqc_data function does not ignore keys as expected")      
+
 
 
 #class TestGetKeyValue():
 
 #class TestGetStatus():
-
 
 #class TestGetOutputFilename():
 

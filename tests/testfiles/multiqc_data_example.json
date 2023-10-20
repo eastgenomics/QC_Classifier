@@ -1,0 +1,49 @@
+{
+    "report_data_sources":"should_ignore",
+    "report_general_stats_headers":"should_ignore",
+    "report_general_stats_data":[
+        {
+            "sample_1":{
+                "FOLD_ENRICHMENT":1
+            },
+            "sample_2":{
+                "FOLD_ENRICHMENT":1
+            }
+        },
+        {
+            "sample_1":{
+                "Match_Sexes":"true"
+            },
+            "sample_2":{
+                "Match_Sexes":"false"
+            }
+        }
+    ],
+    "report_saved_raw_data":{
+        "multiqc_happy_snp_data":{
+            "sample_1_SNP_ALL":{
+                "Metric.Recall_snp":"1.0"
+            },
+            "sample_1_SNP_PASS":{
+                "Metric.Recall_snp":"1.0"
+            }
+        },
+        "multiqc_general_stats":{
+            "sample_1_L001_R1":{
+                "percent_duplicates": 47.37
+            },
+            "sample_1_L001_R2":{
+                "percent_duplicates":42.74
+            },
+            "sample_2_L001_R1":{
+                "percent_duplicates":41.32
+            },
+            "sample_2_L001_R2":{
+                "percent_duplicates":43.30
+            }
+        }
+    },
+    "reports_plot_data":"should_ignore",
+    "report_multiqc_command":"multiqc 230725_A01303_0234_AHHLGMDRX3_CEN-CEN-230726_1357-multiqc.html"
+
+}
