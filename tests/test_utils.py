@@ -30,8 +30,8 @@ TEST_YAML_CONTENT = {'title':'East GLH MultiQC Report',
                               'warn': [{'lt': 1.0}],
                               'fail': [{'lt': 0.99}]},
                          'Match_Sexes':
-                            {True: [{'s_eq': 'pass'}],
-                             'fail': [{'s_eq': 'fail'}],
+                            {True: [{'s_eq': 'yes'}],
+                             'fail': [{'s_eq': 'no'}],
                              'warn': [{'s_eq': 'NA'}]},
                          'FOLD_ENRICHMENT': 
                                 {'pass': [{'gt': 1350}, {'lt': 1750}],
@@ -46,6 +46,8 @@ TEST_YAML_CONTENT = {'title':'East GLH MultiQC Report',
 TEST_MULTIQC_DATA = {
     'report_general_stats_data.0.sample_1.FOLD_ENRICHMENT': 1,
     'report_general_stats_data.0.sample_2.FOLD_ENRICHMENT': 1,
+    'report_general_stats_data.0.sample_1.PCT_TARGET_BASES_20X': 0.99,
+    'report_general_stats_data.0.sample_2.PCT_TARGET_BASES_20X': 0.98,
     'report_general_stats_data.1.sample_1.Match_Sexes': 'true',
     'report_general_stats_data.1.sample_2.Match_Sexes': 'false',
     'report_saved_raw_data.multiqc_happy_snp_data.sample_1_SNP_ALL.Metric.Recall_snp':'1.0',
@@ -186,7 +188,6 @@ class TestGetMultiqcData(unittest.TestCase):
         self.assertEqual(tested_output, expected_output,
                          "The multiqc_data_example.json is not read as expected")
 
-
     def test_ignore_keys(self):
         """
         Test if keys are ignored using the flatten funciton
@@ -204,10 +205,98 @@ class TestGetMultiqcData(unittest.TestCase):
                              "The get_multiqc_data function does not ignore keys as expected")      
 
 
+class TestGetKeyValue(unittest.TestCase):
+    """
+    Tests for function get_key_value(summarised_data, sample_id, header_id)
+    """
 
-#class TestGetKeyValue():
+    def test_standard_inputs(self):
+        """
+        Test the function with standard inputs
+        """
+        tested_output = Classifier.get_key_value(TEST_MULTIQC_DATA,'sample_1', 'FOLD_ENRICHMENT')
+        expected_output = {'sample_1': 1}
+        self.assertEqual(tested_output, expected_output,
+                        "The output of get_key_value function with standard inputs is not expected")
 
-#class TestGetStatus():
+    def test_exception(self):
+        """
+        Test the function when header "PCT_TARGET_BASES_20X is processed as expected
+        """
+        tested_output =Classifier.get_key_value(TEST_MULTIQC_DATA,'sample_1','PCT_TARGET_BASES_20X')
+        expected_output = {'sample_1': 99}
+        self.assertEqual(tested_output, expected_output,
+                        "The output of get_key_value function using the exception is not expected")
+
+    def test_reads_data(self):
+        """
+        Test the function when a given header ID is associated with Reads data.
+        """
+        tested_output =Classifier.get_key_value(TEST_MULTIQC_DATA,'sample_1','percent_duplicates')
+        expected_output = {'sample_1_L001_R1': 47.37, 'sample_1_L001_R2': 42.74}
+        self.assertEqual(tested_output, expected_output,
+                        "The output of using 'percent_duplicates' is not expected")
+
+    def test_controls_data(self):
+        """
+        Test the function when a given header ID is associated with the control data.
+        """
+        tested_output =Classifier.get_key_value(TEST_MULTIQC_DATA,'sample_1','Metric.Recall_snp')
+        expected_output = {'sample_1_SNP_ALL': '1.0', 'sample_1_SNP_PASS':'1.0'}
+        self.assertEqual(tested_output, expected_output,
+                        "The output of using 'Metric.Recall_snp is not expected")
+
+    def test_unfound_query(self):
+        """
+        Test the function when data from the given header ID does not exist on given sample
+        """
+        tested_output =Classifier.get_key_value(TEST_MULTIQC_DATA,'sample_12','Metric.Recall_snp')
+        expected_output = {}
+        self.assertEqual(tested_output, expected_output,
+                        "The output of an unfound query isnot  an empty dictionary")
+
+
+class TestGetStatus(unittest.TestCase):
+    """
+    Tests for function get_status(value, parameters)
+    """
+    def test_float_values(self):
+        """
+        Example inputs, testing the charade of if statements with conditions 'gt' 'lt' 'eq'
+        """
+        tested_values = [1351,1749,1750,1799,1350,1800,0,1900]
+        expected_outcomes = ['pass', 'pass', 'warn', 'warn', 'fail', 'fail', 'fail', 'fail']
+        parameters = TEST_YAML_CONTENT['table_cond_formatting_rules']['FOLD_ENRICHMENT']
+        for index, value in enumerate(tested_values):
+            tested_output = Classifier.get_status(value, parameters)
+            expected_output = expected_outcomes[index]
+            self.assertEqual(tested_output, expected_output,
+                             "The output of get_status with float numbers is not expected.")
+
+    def test_string_values(self):
+        """
+        Example inputs, testing if statement with 's_eq' conditions
+        """
+        tested_values = ["yes","no","NA","maybe"]
+        expected_outcomes = [True,"fail","warn","unknown"]
+        parameters = TEST_YAML_CONTENT['table_cond_formatting_rules']['Match_Sexes']
+        for index, value in enumerate(tested_values):
+            tested_output = Classifier.get_status(value, parameters)
+            expected_output = expected_outcomes[index]
+            self.assertEqual(tested_output, expected_output,
+                             "The output of get_status with str values is not expected.")
+
+    def test_preset_strings(self):
+        """
+        Test function with input strings that which do not require parameters.
+        """
+        tested_values = ['true','pass','unknown','warn','false','fail','']
+        expected_outcomes = ['pass','pass','warn','warn','fail','fail','unknown']
+        for index, value in enumerate(tested_values):
+            tested_output = Classifier.get_status(value, {})
+            expected_output = expected_outcomes[index]
+            self.assertEqual(tested_output, expected_output,
+                             "The output of get_status with preset str values is not expected.")
 
 #class TestGetOutputFilename():
 

@@ -205,14 +205,14 @@ def get_status(value, parameters):
 
         # Config field "Match_Sexes" may return value as a string "false" or "true"
         # which is different to what is set for the config fields.
-        if value == "true" or value == "pass":
-            status = "pass"
+    if value == "true" or value == "pass":
+        status = "pass"
 
-        if value == "unknown" or value == "warn":
-            status = "warn"
+    if value == "unknown" or value == "warn":
+        status = "warn"
 
-        if value == "false" or value == "fail":
-            status = "fail"
+    if value == "false" or value == "fail":
+        status = "fail"
 
     return status # Returns the determined status
 

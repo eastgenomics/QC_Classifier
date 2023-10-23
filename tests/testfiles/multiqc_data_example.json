@@ -4,10 +4,12 @@
     "report_general_stats_data":[
         {
             "sample_1":{
-                "FOLD_ENRICHMENT":1
+                "FOLD_ENRICHMENT":1,
+                "PCT_TARGET_BASES_20X": 0.99
             },
             "sample_2":{
-                "FOLD_ENRICHMENT":1
+                "FOLD_ENRICHMENT":1,
+                "PCT_TARGET_BASES_20X": 0.98
             }
         },
         {

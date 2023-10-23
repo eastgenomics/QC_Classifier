@@ -39,9 +39,9 @@ table_cond_formatting_rules:
             - lt: 0.990
     Match_Sexes:  # Somalier Matching Sex column
         true:
-            - s_eq: 'pass'
+            - s_eq: 'yes'
         fail:
-            - s_eq: 'fail'
+            - s_eq: 'no'
         warn:
             - s_eq: 'NA'
     FOLD_ENRICHMENT: # Picard HSMetrics fold enrichment column
