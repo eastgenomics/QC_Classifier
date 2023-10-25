@@ -56,7 +56,7 @@ TEST_MULTIQC_DATA = {
     'report_saved_raw_data.multiqc_general_stats.sample_1_L001_R2.percent_duplicates': 42.74,
     'report_saved_raw_data.multiqc_general_stats.sample_2_L001_R1.percent_duplicates': 41.32,
     'report_saved_raw_data.multiqc_general_stats.sample_2_L001_R2.percent_duplicates': 43.30,
-    'report_multiqc_command':'multiqc 230725_A01303_0234_AHHLGMDRX3_CEN-CEN-230726_1357-multiqc.html'}
+    'report_multiqc_command':'multiqc 230620_A01234_5678_ABCDEFGHI9_CEN-CEN-230620_1234-multiqc.html'}
 
 class TestMapHeaderID(unittest.TestCase):
     """
@@ -299,7 +299,27 @@ class TestGetStatus(unittest.TestCase):
                              "The output of get_status with preset str values is not expected.")
 
 #class TestGetOutputFilename():
+class TestGetOutputFilename(unittest.TestCase):
+    """
+    Tests for function get_output_filename(summarised_data)
+    """
+    def test_expected_filename(self):
+        """
+        Test function with summary data which includes the "report_multiqc_command" key
+        """
+        tested_output = Classifier.get_output_filename(TEST_MULTIQC_DATA)
+        expected_output = '230620_A01234_5678_ABCDEFGHI9_CEN-CEN-230620_1234-multiqc.json'
+        self.assertEqual(tested_output, expected_output,
+                        "The output of get_output_filename is expected.")
 
+    def test_unfound_filename(self):
+        """
+        Test whether standard filename is given if pattern in "report_multiqc_command" key not found
+        """
+        tested_output = Classifier.get_output_filename({'report_multiqc_command':''})
+        expected_output = 'multiqc_qc_classified.json'
+        self.assertEqual(tested_output, expected_output,
+                        "The output of get_output_filename is expected.")
 
 if __name__=='__main__':
     unittest.main()

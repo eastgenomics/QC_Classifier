@@ -46,6 +46,6 @@
         }
     },
     "reports_plot_data":"should_ignore",
-    "report_multiqc_command":"multiqc 230725_A01303_0234_AHHLGMDRX3_CEN-CEN-230726_1357-multiqc.html"
+    "report_multiqc_command":"multiqc 230620_A01234_5678_ABCDEFGHI9_CEN-CEN-230620_1234-multiqc.html"
 
 }
