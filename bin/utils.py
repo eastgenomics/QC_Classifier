@@ -49,7 +49,7 @@ def map_header_id(config_field) -> str:
     header_id = id_mapping.get(config_field)
 
     if header_id is None:
-        raise NameError(f"Config field {config_field} does not have an associated Header ID.")
+        raise NameError("Missing Header ID for config field: " + config_field)
 
     return header_id
 
@@ -66,7 +66,8 @@ def read_config(yaml_file) -> dict:
         yaml_file = yaml.safe_load(file)
 
     if not yaml_file.get("table_cond_formatting_rules"):
-        raise TypeError(f"{yaml_file} does not have 'table_cond_formatting_rules' key")
+        raise TypeError(f"{yaml_file} does not have "
+                        + "'table_cond_formatting_rules' key")
 
     return yaml_file
 
@@ -84,9 +85,7 @@ def get_unique_parameters(unique_id, yaml_file) -> dict:
 
     """
 
-    parameters = yaml_file["table_cond_formatting_rules"][unique_id]
-
-    return parameters
+    return yaml_file["table_cond_formatting_rules"][unique_id]
 
 
 def get_sample_lists(csv_filepath) -> list:
@@ -103,7 +102,6 @@ def get_sample_lists(csv_filepath) -> list:
     with open(csv_filepath, 'r', encoding='UTF-8') as file:
         sample_sheet = pandas.read_csv(file, header=None, usecols=[0])
     column = sample_sheet[0].tolist()
-    print(column)
     sample_list = column[column.index('Sample_ID') + 1:]
 
     return sample_list
@@ -121,9 +119,10 @@ def get_multiqc_data(multiqc_filepath) -> dict:
     with open(multiqc_filepath, 'r', encoding='UTF-8') as file:
         multiqc_data = json.load(file)
 
-        data = flatten(multiqc_data, '.', root_keys_to_ignore = {'report_data_sources',
-                                                                 'report_general_stats_headers',
-                                                                 'reports_plot_data'})
+        data = flatten(multiqc_data, '.',
+                       root_keys_to_ignore = {'report_data_sources',
+                                              'report_general_stats_headers',
+                                              'reports_plot_data'})
     return data
 
 
@@ -149,7 +148,7 @@ def get_key_value(summarised_data, sample_id, header_id):
             else:
                 new_key = re.search(f"{sample_id}[A-Z0-9_]+", key)
 
-            # Need to create an exception for "PCT_TARGET_BASES_20X"
+            # Exception created for "PCT_TARGET_BASES_20X"
             if header_id == "PCT_TARGET_BASES_20X":
                 val = val*100
 
@@ -157,7 +156,6 @@ def get_key_value(summarised_data, sample_id, header_id):
                 new_key = new_key.group()
                 result.update({new_key:val})
 
-    #TODO: return warning message if error released
     return result
 
 
@@ -205,13 +203,13 @@ def get_status(value, parameters):
 
         # Config field "Match_Sexes" may return value as a string "false" or "true"
         # which is different to what is set for the config fields.
-    if value == "true" or value == "pass":
+    if value in ["true", "pass"]:
         status = "pass"
 
-    if value == "unknown" or value == "warn":
+    if value in ["unknown", "warn"]:
         status = "warn"
 
-    if value == "false" or value == "fail":
+    if value in ["false", "fail"]:
         status = "fail"
 
     return status # Returns the determined status

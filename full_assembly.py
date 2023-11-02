@@ -130,8 +130,8 @@ def main():
     for config_field in config_fields:
         header_id = Classifier.map_header_id(config_field)
         parameters = Classifier.get_unique_parameters(config_field,
-                                                          yaml_content)
-        thresholds_report_output.update({header_id:parameters})
+                                                      yaml_content)
+        thresholds_report_output.update({header_id: parameters})
 
     # Generating qc_report structure
     qc_report_output = {"Summary":summary_report_output}

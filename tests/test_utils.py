@@ -18,10 +18,10 @@ TEST_DATA_DIR = (
     os.path.join(os.path.dirname(__file__), 'testfiles')
 )
 
-TEST_YAML_CONTENT = {'title':'East GLH MultiQC Report',
+TEST_YAML_CONTENT = {'title': 'East GLH MultiQC Report',
                      'subtitle': 'Cancer Endocrine Neurology',
                      'table_cond_formatting_rules': 
-                        {'mqc-generalstats-picard-PCT_TARGET_BASES_20X': 
+                        {'mqc-generalstats-picard-PCT_TARGET_BASES_20X':
                             {'pass':[{'lt': 101}],
                              'warn': [{'eq': 98.0}, {'lt': 98.0}],
                              'fail': [{'eq': 95.0}, {'lt': 95.0}]},
@@ -50,13 +50,13 @@ TEST_MULTIQC_DATA = {
     'report_general_stats_data.0.sample_2.PCT_TARGET_BASES_20X': 0.98,
     'report_general_stats_data.1.sample_1.Match_Sexes': 'true',
     'report_general_stats_data.1.sample_2.Match_Sexes': 'false',
-    'report_saved_raw_data.multiqc_happy_snp_data.sample_1_SNP_ALL.Metric.Recall_snp':'1.0',
-    'report_saved_raw_data.multiqc_happy_snp_data.sample_1_SNP_PASS.Metric.Recall_snp':'1.0',
+    'report_saved_raw_data.multiqc_happy_snp_data.sample_1_SNP_ALL.Metric.Recall_snp': '1.0',
+    'report_saved_raw_data.multiqc_happy_snp_data.sample_1_SNP_PASS.Metric.Recall_snp': '1.0',
     'report_saved_raw_data.multiqc_general_stats.sample_1_L001_R1.percent_duplicates': 47.37,
     'report_saved_raw_data.multiqc_general_stats.sample_1_L001_R2.percent_duplicates': 42.74,
     'report_saved_raw_data.multiqc_general_stats.sample_2_L001_R1.percent_duplicates': 41.32,
     'report_saved_raw_data.multiqc_general_stats.sample_2_L001_R2.percent_duplicates': 43.30,
-    'report_multiqc_command':'multiqc 230620_A01234_5678_ABCDEFGHI9_CEN-CEN-230620_1234-multiqc.html'}
+    'report_multiqc_command': 'multiqc 230620_A01234_5678_ABCDEFGHI9_CEN-CEN-230620_1234-multiqc.html'}
 
 class TestMapHeaderID(unittest.TestCase):
     """
@@ -72,7 +72,8 @@ class TestMapHeaderID(unittest.TestCase):
 
     def test_map_header_id(self):
         """
-        Testing if outputs as expected
+        Testing if given config fields from test_inputs outputs the right
+        list of expected header_ids
         """
         expected_outputs = [
                             'PCT_TARGET_BASES_20X',
@@ -94,7 +95,7 @@ class TestMapHeaderID(unittest.TestCase):
         with self.assertRaises(NameError) as context:
             Classifier.map_header_id("unknown_field")
         self.assertEqual(str(context.exception),
-                         "Config field unknown_field does not have an associated Header ID.",
+                         "Missing Header ID for config field: unknown_field",
                          "Error message does not match")
 
 
@@ -102,7 +103,8 @@ class TestReadConfig(unittest.TestCase):
     """
     Tests for read_config(yaml_file)
     """
-    CONFIG_EXAMPLE_FILEPATH = os.path.join(TEST_DATA_DIR, 'config_example.yaml')
+    CONFIG_EXAMPLE_FILEPATH = os.path.join(TEST_DATA_DIR,
+                                           'config_example.yaml')
 
     def test_reading_file(self):
         """
@@ -110,22 +112,25 @@ class TestReadConfig(unittest.TestCase):
         """
         tested_output = Classifier.read_config(self.CONFIG_EXAMPLE_FILEPATH)
         self.assertEqual(tested_output, TEST_YAML_CONTENT,
-                         "The example config_example.yaml file is not read as expected")
+                         "The example config_example.yaml "
+                         + "file is not read as expected")
 
     def test_file_not_found(self):
         """
         Testing if FileNotFound error is raised if config file not found
         """
         unknown_filepath = os.path.join(TEST_DATA_DIR, 'unknown.yaml')
-        with self.assertRaises(FileNotFoundError, msg="FileNotFoundError not given"):
+        with self.assertRaises(FileNotFoundError,
+                               msg="FileNotFoundError not given"):
             Classifier.read_config(unknown_filepath)
 
     @patch('bin.utils.yaml.safe_load',
-           lambda yaml_file: TEST_YAML_CONTENT.fromkeys(('title', 'subtitle')))
+           lambda yaml_file: TEST_YAML_CONTENT.fromkeys(('title',
+                                                         'subtitle')))
     def test_invalid_yaml_file(self):
         """
-        Testing if the TypeError is raised when given yaml file does not have key with
-        config fields.
+        Testing if the TypeError is raised when given yaml file does not
+        have key with config fields.
         """
         with self.assertRaises(TypeError, msg="TypeError not given"):
             Classifier.read_config(self.CONFIG_EXAMPLE_FILEPATH)
@@ -142,7 +147,7 @@ class TesGettUniqueParameters(unittest.TestCase):
         """
         example_config_field = 'FOLD_ENRICHMENT'
         tested_output = Classifier.get_unique_parameters("FOLD_ENRICHMENT",
-                                                        TEST_YAML_CONTENT)
+                                                         TEST_YAML_CONTENT)
         self.assertEqual(tested_output,
                          TEST_YAML_CONTENT['table_cond_formatting_rules']
                                           [example_config_field])
@@ -152,7 +157,8 @@ class TestGetSampleLists(unittest.TestCase):
     """
     Test for get_sample_list(csv_filepath):
     """
-    SAMPLESHEET_EXAMPLE_FILEPATH = os.path.join(TEST_DATA_DIR, 'samplesheet_example.csv')
+    SAMPLESHEET_EXAMPLE_FILEPATH = os.path.join(TEST_DATA_DIR,
+                                                'samplesheet_example.csv')
 
     def test_reading_file(self):
         """
@@ -169,7 +175,8 @@ class TestGetSampleLists(unittest.TestCase):
         Testing if FileNotFound error is raised if config file not found
         """
         unknown_filepath = os.path.join(TEST_DATA_DIR, 'unknown.csv')
-        with self.assertRaises(FileNotFoundError, msg="FileNotFoundError not given"):
+        with self.assertRaises(FileNotFoundError,
+                               msg="FileNotFoundError not given"):
             Classifier.read_config(unknown_filepath)
 
 
@@ -177,7 +184,8 @@ class TestGetMultiqcData(unittest.TestCase):
     """
     Tests for get_multiqc_data(multiqc_filepath)
     """
-    MULTIQC_EXAMPLE_FILEPATH = os.path.join(TEST_DATA_DIR, 'multiqc_data_example.json')
+    MULTIQC_EXAMPLE_FILEPATH = os.path.join(TEST_DATA_DIR,
+                                            'multiqc_data_example.json')
 
     def test_reading_file(self):
         """
@@ -196,13 +204,15 @@ class TestGetMultiqcData(unittest.TestCase):
 
             mock.return_value = {'report_data_sources':'should_ignore',
                                  'report_general_stats_headers':'should_ignore',
-                                 'reports_general_stats_data':{'example':'should_retain'},
+                                 'reports_general_stats_data':
+                                    {'example':'should_retain'},
                                  'reports_plot_data':'should_ignore'}
 
             expected_output = {'reports_general_stats_data.example':'should_retain'}
             tested_output = Classifier.get_multiqc_data(self.MULTIQC_EXAMPLE_FILEPATH)
             self.assertEqual(tested_output,expected_output,
-                             "The get_multiqc_data function does not ignore keys as expected")      
+                             "The get_multiqc_data function " 
+                             + "does not ignore keys as expected")      
 
 
 class TestGetKeyValue(unittest.TestCase):
@@ -214,43 +224,54 @@ class TestGetKeyValue(unittest.TestCase):
         """
         Test the function with standard inputs
         """
-        tested_output = Classifier.get_key_value(TEST_MULTIQC_DATA,'sample_1', 'FOLD_ENRICHMENT')
+        tested_output = Classifier.get_key_value(TEST_MULTIQC_DATA,
+                                                 'sample_1', 'FOLD_ENRICHMENT')
         expected_output = {'sample_1': 1}
         self.assertEqual(tested_output, expected_output,
-                        "The output of get_key_value function with standard inputs is not expected")
+                        "The output of get_key_value function with standard "
+                        + "inputs is not expected")
 
     def test_exception(self):
         """
         Test the function when header "PCT_TARGET_BASES_20X is processed as expected
         """
-        tested_output =Classifier.get_key_value(TEST_MULTIQC_DATA,'sample_1','PCT_TARGET_BASES_20X')
+        tested_output = Classifier.get_key_value(TEST_MULTIQC_DATA,'sample_1',
+                                                'PCT_TARGET_BASES_20X')
         expected_output = {'sample_1': 99}
         self.assertEqual(tested_output, expected_output,
-                        "The output of get_key_value function using the exception is not expected")
+                        "The output of get_key_value function using the "
+                        + "exception is not expected")
 
     def test_reads_data(self):
         """
         Test the function when a given header ID is associated with Reads data.
         """
-        tested_output =Classifier.get_key_value(TEST_MULTIQC_DATA,'sample_1','percent_duplicates')
-        expected_output = {'sample_1_L001_R1': 47.37, 'sample_1_L001_R2': 42.74}
+        tested_output = Classifier.get_key_value(TEST_MULTIQC_DATA,'sample_1',
+                                                'percent_duplicates')
+        expected_output = {'sample_1_L001_R1': 47.37,
+                           'sample_1_L001_R2': 42.74}
         self.assertEqual(tested_output, expected_output,
                         "The output of using 'percent_duplicates' is not expected")
 
     def test_controls_data(self):
         """
-        Test the function when a given header ID is associated with the control data.
+        Test the function when a given header ID is associated with the 
+        control data.
         """
-        tested_output =Classifier.get_key_value(TEST_MULTIQC_DATA,'sample_1','Metric.Recall_snp')
+        tested_output = Classifier.get_key_value(TEST_MULTIQC_DATA,'sample_1',
+                                                'Metric.Recall_snp')
         expected_output = {'sample_1_SNP_ALL': '1.0', 'sample_1_SNP_PASS':'1.0'}
         self.assertEqual(tested_output, expected_output,
-                        "The output of using 'Metric.Recall_snp is not expected")
+                        "The output of using 'Metric.Recall_snp'"
+                        + "is not expected")
 
     def test_unfound_query(self):
         """
-        Test the function when data from the given header ID does not exist on given sample
+        Test the function when data from the given header ID 
+        does not exist on given sample
         """
-        tested_output =Classifier.get_key_value(TEST_MULTIQC_DATA,'sample_12','Metric.Recall_snp')
+        tested_output = Classifier.get_key_value(TEST_MULTIQC_DATA,'sample_12',
+                                                'Metric.Recall_snp')
         expected_output = {}
         self.assertEqual(tested_output, expected_output,
                         "The output of an unfound query isnot  an empty dictionary")
@@ -262,16 +283,20 @@ class TestGetStatus(unittest.TestCase):
     """
     def test_float_values(self):
         """
-        Example inputs, testing the charade of if statements with conditions 'gt' 'lt' 'eq'
+        Example inputs, testing the charade of if statements with 
+        conditions 'gt' 'lt' 'eq'
         """
         tested_values = [1351,1749,1750,1799,1350,1800,0,1900]
-        expected_outcomes = ['pass', 'pass', 'warn', 'warn', 'fail', 'fail', 'fail', 'fail']
+        expected_outcomes = ['pass', 'pass', 'warn', 'warn',
+                             'fail', 'fail', 'fail', 'fail']
         parameters = TEST_YAML_CONTENT['table_cond_formatting_rules']['FOLD_ENRICHMENT']
-        for index, value in enumerate(tested_values):
-            tested_output = Classifier.get_status(value, parameters)
-            expected_output = expected_outcomes[index]
-            self.assertEqual(tested_output, expected_output,
-                             "The output of get_status with float numbers is not expected.")
+        output_list = []
+        for value in tested_values:
+            output = Classifier.get_status(value, parameters)
+            output_list.append(output)
+
+        self.assertEqual(output_list, expected_outcomes,
+                         "The output of get_status with float numbers is not expected.")
 
     def test_string_values(self):
         """
@@ -280,32 +305,38 @@ class TestGetStatus(unittest.TestCase):
         tested_values = ["yes","no","NA","maybe"]
         expected_outcomes = [True,"fail","warn","unknown"]
         parameters = TEST_YAML_CONTENT['table_cond_formatting_rules']['Match_Sexes']
-        for index, value in enumerate(tested_values):
-            tested_output = Classifier.get_status(value, parameters)
-            expected_output = expected_outcomes[index]
-            self.assertEqual(tested_output, expected_output,
-                             "The output of get_status with str values is not expected.")
+        output_list = []
+        for value in tested_values:
+            output = Classifier.get_status(value, parameters)
+            output_list.append(output)
+
+        self.assertEqual(output_list, expected_outcomes,
+                        "The output of get_status with str values is not expected.")
 
     def test_preset_strings(self):
         """
         Test function with input strings that which do not require parameters.
         """
         tested_values = ['true','pass','unknown','warn','false','fail','']
-        expected_outcomes = ['pass','pass','warn','warn','fail','fail','unknown']
-        for index, value in enumerate(tested_values):
-            tested_output = Classifier.get_status(value, {})
-            expected_output = expected_outcomes[index]
-            self.assertEqual(tested_output, expected_output,
-                             "The output of get_status with preset str values is not expected.")
+        expected_outcomes = ['pass','pass','warn','warn',
+                             'fail','fail','unknown']
+        output_list = []
+        for value in tested_values:
+            output = Classifier.get_status(value, {})
+            output_list.append(output)
 
-#class TestGetOutputFilename():
+        self.assertEqual(output_list, expected_outcomes,
+                         "The output of get_status with preset str values is not expected.")
+
+
 class TestGetOutputFilename(unittest.TestCase):
     """
     Tests for function get_output_filename(summarised_data)
     """
     def test_expected_filename(self):
         """
-        Test function with summary data which includes the "report_multiqc_command" key
+        Test function with summary data which includes the 
+        "report_multiqc_command" key
         """
         tested_output = Classifier.get_output_filename(TEST_MULTIQC_DATA)
         expected_output = '230620_A01234_5678_ABCDEFGHI9_CEN-CEN-230620_1234-multiqc.json'
@@ -314,7 +345,8 @@ class TestGetOutputFilename(unittest.TestCase):
 
     def test_unfound_filename(self):
         """
-        Test whether standard filename is given if pattern in "report_multiqc_command" key not found
+        Test whether standard filename is given if pattern in 
+        "report_multiqc_command" key not found
         """
         tested_output = Classifier.get_output_filename({'report_multiqc_command':''})
         expected_output = 'multiqc_qc_classified.json'
