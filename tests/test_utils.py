@@ -44,7 +44,7 @@ TEST_YAML_CONTENT = {'title': 'East GLH MultiQC Report',
                                  'fail': [{'eq': 50.0}, {'gt': 50.0}]}}}
 
 TEST_MULTIQC_DATA = {
-    'report_general_stats_data.0.sample_1.FOLD_ENRICHMENT': 1,
+    'report_general_stats_data.0.sample_1.FOLD_ENRICHMENT': 1500,
     'report_general_stats_data.0.sample_2.FOLD_ENRICHMENT': 1,
     'report_general_stats_data.0.sample_1.PCT_TARGET_BASES_20X': 0.99,
     'report_general_stats_data.0.sample_2.PCT_TARGET_BASES_20X': 0.98,
@@ -52,11 +52,11 @@ TEST_MULTIQC_DATA = {
     'report_general_stats_data.1.sample_2.Match_Sexes': 'false',
     'report_saved_raw_data.multiqc_happy_snp_data.sample_1_SNP_ALL.Metric.Recall_snp': '1.0',
     'report_saved_raw_data.multiqc_happy_snp_data.sample_1_SNP_PASS.Metric.Recall_snp': '1.0',
-    'report_saved_raw_data.multiqc_general_stats.sample_1_L001_R1.percent_duplicates': 47.37,
+    'report_saved_raw_data.multiqc_general_stats.sample_1_L001_R1.percent_duplicates': 44,
     'report_saved_raw_data.multiqc_general_stats.sample_1_L001_R2.percent_duplicates': 42.74,
     'report_saved_raw_data.multiqc_general_stats.sample_2_L001_R1.percent_duplicates': 41.32,
     'report_saved_raw_data.multiqc_general_stats.sample_2_L001_R2.percent_duplicates': 43.30,
-    'report_multiqc_command': 'multiqc 230620_A01234_5678_ABCDEFGHI9_CEN-CEN-230620_1234-multiqc.html'}
+    'report_multiqc_command': 'multiqc 230620_A01234_5678_ABCDEFGHI9_ABC-ABC-230620_1234-multiqc.html'}
 
 class TestMapHeaderID(unittest.TestCase):
     """
@@ -164,8 +164,7 @@ class TestGetSampleLists(unittest.TestCase):
         """
         Test if samplesheet.csv file is read as expected
         """
-        expected_output = ['Sample_ID_1', 'Sample_ID_2',
-                           'Sample_ID_3', 'Sample_ID_4']
+        expected_output = ['sample_1', 'sample_2']
         tested_output = Classifier.get_sample_lists(self.SAMPLESHEET_EXAMPLE_FILEPATH)
         self.assertEqual(tested_output, expected_output,
                          "The samplesheet_example.csv is not read as expected")
@@ -226,7 +225,7 @@ class TestGetKeyValue(unittest.TestCase):
         """
         tested_output = Classifier.get_key_value(TEST_MULTIQC_DATA,
                                                  'sample_1', 'FOLD_ENRICHMENT')
-        expected_output = {'sample_1': 1}
+        expected_output = {'sample_1': 1500}
         self.assertEqual(tested_output, expected_output,
                         "The output of get_key_value function with standard "
                         + "inputs is not expected")
@@ -248,7 +247,7 @@ class TestGetKeyValue(unittest.TestCase):
         """
         tested_output = Classifier.get_key_value(TEST_MULTIQC_DATA,'sample_1',
                                                 'percent_duplicates')
-        expected_output = {'sample_1_L001_R1': 47.37,
+        expected_output = {'sample_1_L001_R1': 44,
                            'sample_1_L001_R2': 42.74}
         self.assertEqual(tested_output, expected_output,
                         "The output of using 'percent_duplicates' is not expected")
@@ -339,7 +338,7 @@ class TestGetOutputFilename(unittest.TestCase):
         "report_multiqc_command" key
         """
         tested_output = Classifier.get_output_filename(TEST_MULTIQC_DATA)
-        expected_output = '230620_A01234_5678_ABCDEFGHI9_CEN-CEN-230620_1234-multiqc.json'
+        expected_output = '230620_A01234_5678_ABCDEFGHI9_ABC-ABC-230620_1234-multiqc.json'
         self.assertEqual(tested_output, expected_output,
                         "The output of get_output_filename is expected.")
 

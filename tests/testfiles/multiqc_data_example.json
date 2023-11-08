@@ -4,7 +4,7 @@
     "report_general_stats_data":[
         {
             "sample_1":{
-                "FOLD_ENRICHMENT":1,
+                "FOLD_ENRICHMENT":1500,
                 "PCT_TARGET_BASES_20X": 0.99
             },
             "sample_2":{
@@ -32,7 +32,7 @@
         },
         "multiqc_general_stats":{
             "sample_1_L001_R1":{
-                "percent_duplicates": 47.37
+                "percent_duplicates": 44
             },
             "sample_1_L001_R2":{
                 "percent_duplicates":42.74
@@ -46,6 +46,6 @@
         }
     },
     "reports_plot_data":"should_ignore",
-    "report_multiqc_command":"multiqc 230620_A01234_5678_ABCDEFGHI9_CEN-CEN-230620_1234-multiqc.html"
+    "report_multiqc_command":"multiqc 230620_A01234_5678_ABCDEFGHI9_ABC-ABC-230620_1234-multiqc.html"
 
 }

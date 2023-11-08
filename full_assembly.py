@@ -143,5 +143,7 @@ def main():
     with open(qc_report_filename, 'w', encoding='UTF-8') as output_filename:
         json.dump(qc_report_output, output_filename, indent="   ")
 
+    return qc_report_output
+
 if __name__ == "__main__":
     main()
