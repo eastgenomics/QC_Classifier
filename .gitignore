@@ -157,6 +157,10 @@ multiqc_data.json
 qc_report.json
 SampleSheet.csv
 
+# Test files to ignore
+test_anything.py
+230620_A01234_5678_ABCDEFGHI9_ABC-ABC-230620_1234-multiqc_ignore.json
+
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
