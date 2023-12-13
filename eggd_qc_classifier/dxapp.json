@@ -59,6 +59,13 @@
     "release": "20.04",
     "version": "0"
   },
+  "developers":[
+    "user-karnania",
+    "org-emee_1"
+  ],
+  "authorizedUsers": [
+    "org-emee_1"
+  ],
   "regionalOptions": {
     "aws:eu-central-1": {
       "systemRequirements": {

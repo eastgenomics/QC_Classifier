@@ -60,6 +60,8 @@ main() {
 
     qc_report_json=$(find . -name "*multiqc.json")
 
+    echo File $qc_report_json created.
+
     qc_report_json=$(dx upload $qc_report_json --brief)
 
     # The following line(s) use the utility dx-jobutil-add-output to format and
