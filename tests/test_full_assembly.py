@@ -10,8 +10,9 @@ from unittest.mock import patch
 
 
 sys.path.append(os.path.abspath(
-    os.path.join(os.path.realpath(__file__), '../../')
+    os.path.join(os.path.realpath(__file__), '../../eggd_qc_classifier/resources/home/dnanexus/')
 ))
+print(sys.path)
 
 import full_assembly as App
 
@@ -20,7 +21,7 @@ TEST_OUTPUT = {'Summary':
                  'sample_2': 'fail'},
                 'Details':
                 {'sample_1':
-                {'PCT_TARGET_BASES_20X': 
+                {'PCT_TARGET_BASES_20X':
                     {'record':
                     [{'sample': 'sample_1',
                     'value': 99.0, 'status': 'pass'}]},
@@ -88,7 +89,8 @@ class MainFunctionTest(unittest.TestCase):
     def test_main_function_alone(self, mock_open):
         """
         Testing the main function with no input
-        "tests/testfiles/SampleSheet.csv", "tests/testfiles/multiqc_data.json", "tests/testfiles/CEN_multiqc_config_v2.1.0.yaml"
+        "tests/testfiles/SampleSheet.csv", "tests/testfiles/multiqc_data.json",
+        "tests/testfiles/CEN_multiqc_config_v2.1.0.yaml"
         """
         with patch('full_assembly.parse_args') as mock:
             args = Namespace()

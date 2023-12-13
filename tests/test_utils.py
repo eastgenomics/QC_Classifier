@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 
 sys.path.append(os.path.abspath(
-    os.path.join(os.path.realpath(__file__), '../../')
+    os.path.join(os.path.realpath(__file__), '../../eggd_qc_classifier/resources/home/dnanexus/')
 ))
 
 import bin.utils as Classifier
