@@ -77,8 +77,8 @@ def main():
     multiqc_data = Classifier.get_multiqc_data(args.data)
 
     # List of config_fields
-    yaml_content = Classifier.read_config(args.config)
-    config_fields = list(yaml_content["table_cond_formatting_rules"].keys())
+    config_content = Classifier.read_config(args.config)
+    config_fields = list(config_content["table_cond_formatting_rules"].keys())
 
     summary_report_output = {}
     details_report_output = {}
@@ -89,10 +89,10 @@ def main():
         for config_field in config_fields:
             header_id = Classifier.map_header_id(config_field)
             parameters = Classifier.get_unique_parameters(config_field,
-                                                          yaml_content)
-            key_values = Classifier.get_key_value(multiqc_data,
-                                                  sample,
-                                                  header_id)
+                                                          config_content)
+            key_values = Classifier.get_sample_metric_value(multiqc_data,
+                                                            sample,
+                                                            header_id)
 
             if key_values:
                 record = []
@@ -130,7 +130,7 @@ def main():
     for config_field in config_fields:
         header_id = Classifier.map_header_id(config_field)
         parameters = Classifier.get_unique_parameters(config_field,
-                                                      yaml_content)
+                                                      config_content)
         thresholds_report_output.update({header_id: parameters})
 
     # Generating qc_report structure

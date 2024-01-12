@@ -95,7 +95,7 @@ def get_sample_lists(csv_filepath) -> list:
         csv_filepath (str): filelocation of csv_filepath
 
     Returns:
-        list: list of strings, each string represents a sample from multiqc.json 
+        list: list of strings, each string is a sampleID from the multiqc.json 
     """
 
     # Get all IDs from sample sheet
@@ -126,7 +126,7 @@ def get_multiqc_data(multiqc_filepath) -> dict:
     return data
 
 
-def get_key_value(summarised_data, sample_id, header_id):
+def get_sample_metric_value(summarised_data, sample_id, header_id):
     """Return the value of given sample ID and header_id in a dictionary format.
 
     Args:
@@ -143,6 +143,8 @@ def get_key_value(summarised_data, sample_id, header_id):
     result = {}
     for key, val in summarised_data.items():
         if sample_id in key and header_id in key:
+            # Example of what the key would look like in the summarised data
+            # report_general_stat_data.0.sample_id.header_id
             if f"{sample_id}.{header_id}" in key:
                 new_key = re.search(f"{sample_id}", key)
             else:
