@@ -1,7 +1,7 @@
 """
 We have all the functions needed to generate the individual 
 outputs that we need, all we have to do is join everything together in
-a complex dictionary. 
+a complex dictionary.
 
 All inputs:
     - SampleSheet.csv
@@ -12,7 +12,7 @@ Output structure:
 {
     {
     "Summary":{
-        "SampleID_1": "pass", 
+        "SampleID_1": "pass",
         "SampleID_2": "warn"
 
     },
@@ -44,6 +44,7 @@ import argparse
 import json
 import bin.utils as Classifier
 
+
 def parse_args() -> argparse.Namespace:
     """
     Parse command line arguments
@@ -52,7 +53,8 @@ def parse_args() -> argparse.Namespace:
         args : Namespace
           Namespace of passed command line argument inputs
     """
-    parser = argparse.ArgumentParser(description='QC Classifier for multiqc data')
+    parser = argparse.ArgumentParser(description='QC Classifier for multiqc \
+                                     data')
 
     parser.add_argument('samplesheet', type=str,
                         help='filepath to SampleSheet.csv file')
@@ -109,7 +111,7 @@ def main():
                     status_list.append(status)
 
                 record = {
-                          header_id:{
+                          header_id: {
                                      "record": record
                                     }
                          }
@@ -122,8 +124,8 @@ def main():
         else:
             status_summary = 'pass'
 
-        summary_report_output.update({sample:status_summary})
-        details_report_output.update({sample:metrics_summary})
+        summary_report_output.update({sample: status_summary})
+        details_report_output.update({sample: metrics_summary})
 
     # Generate structure of thresholds report
     thresholds_report_output = {}
@@ -134,7 +136,7 @@ def main():
         thresholds_report_output.update({header_id: parameters})
 
     # Generating qc_report structure
-    qc_report_output = {"Summary":summary_report_output}
+    qc_report_output = {"Summary": summary_report_output}
     qc_report_output.update({"Details": details_report_output})
     qc_report_output.update({"Thresholds": thresholds_report_output})
     qc_report_filename = Classifier.get_output_filename(multiqc_data)
@@ -144,6 +146,7 @@ def main():
         json.dump(qc_report_output, output_filename, indent="   ")
 
     return qc_report_output
+
 
 if __name__ == "__main__":
     main()
