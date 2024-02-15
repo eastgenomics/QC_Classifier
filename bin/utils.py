@@ -15,7 +15,7 @@ Functions:
 - get_multiqc_data(multiqc_filepath):
     - Return a flattened dictionary with values for all samples from given
     multiqc run.
-- get_key_value(summarised_data, sample_id, header_id):
+- get_sample_metric_value(summarised_data, sample_id, header_id):
     - Return the value of given sample_id and header_id in a dictionary format.
 - get_status(value, parameters):
     - Function to determine pass/warn/fail status based on given value and
